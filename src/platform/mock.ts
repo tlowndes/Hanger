@@ -7,6 +7,7 @@ const D = "99 - Meta/Kits";
 
 const DEMO: Record<string, string> = {
   [`${D}/Pocket.md`]: STARTERS.Pocket,
+  ["99 - Meta/capture-config.json"]: JSON.stringify({ calendars: [{ id: "demo", name: "Demo", url: "https://calendar.example.com/demo.ics", colour: "#7aa2ff", enabled: true }] }),
   [`${D}/Backpack.md`]: `# 🎒 Backpack
 
 Comes along when a Use when line fits the day.
@@ -164,5 +165,22 @@ export function mockLab(): import("./desktop").LabPort {
     services: async () => JSON.stringify(groups),
     status: async (_a, _g, service) => JSON.stringify(service === "Plex" ? { status: 502 } : { status: 200, latency: 14 }),
     open: async () => { throw new Error("Opening Homepage works in the Windows app."); },
+  };
+}
+
+/** A pretend weather and calendar for the browser preview: a gym session at 18:30 and a wet evening. */
+export function mockHome(): import("./desktop").HomePort {
+  const day = new Date();
+  const ymd = (d: Date): string => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const stamp = ymd(day).replace(/-/g, "");
+  // A gym session an hour from now (or 23:30 late at night), so the preview always has something coming up.
+  const hh = String(Math.min(23, day.getHours() + 1)).padStart(2, "0");
+  return {
+    weatherFind: async (place) => JSON.stringify({ results: [{ name: place || "Manchester", country: "United Kingdom", latitude: 53.48, longitude: -2.24 }] }),
+    weatherForecast: async () => {
+      const time = Array.from({ length: 24 }, (_, h) => `${ymd(day)}T${String(h).padStart(2, "0")}:00`);
+      return JSON.stringify({ hourly: { time, precipitation_probability: time.map((_, h) => (h >= 17 && h <= 20 ? 70 : 10)), temperature_2m: time.map((_, h) => 4 + Math.min(h, 24 - h) / 2) }, daily: { time: [ymd(day)], temperature_2m_min: [4] } });
+    },
+    calendarFetch: async () => `BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nDTSTART:${stamp}T${hh}3000\r\nDTEND:${stamp}T${hh}5959\r\nSUMMARY:Gym\r\nEND:VEVENT\r\nEND:VCALENDAR`,
   };
 }

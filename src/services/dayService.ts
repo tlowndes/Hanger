@@ -1,6 +1,7 @@
 /** Cool-off and Refill notes, plus the Did I? history Refill counts from. */
 import * as C from "../core/cooloff";
 import * as D from "../core/didi";
+import * as LP from "../core/launchpad";
 import * as LS from "../core/lastseen";
 import * as PP from "../core/pocketpass";
 import * as R from "../core/refill";
@@ -63,4 +64,11 @@ export async function loadSeen(port: VaultPort): Promise<LS.Seen[]> {
 }
 export async function saveSeen(port: VaultPort, items: LS.Seen[], today: string): Promise<void> {
   await port.write(LS.NOTE, LS.render(await readOr(port, LS.NOTE, LS.STARTER), LS.prune(items, today)));
+}
+
+// ---- Launch Pad ----
+
+/** The Launch Pad kit note, written from the starter the first time. */
+export async function loadLaunchKit(port: VaultPort): Promise<LP.Kit> {
+  return LP.parse(await readOr(port, LP.NOTE, LP.STARTER));
 }
