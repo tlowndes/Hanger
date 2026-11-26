@@ -1,0 +1,28 @@
+# Hanger
+
+One Windows app for Tom's everyday tools, in the Flight Deck look: graphite surfaces, soft shapes, one accent colour per module.
+
+Hanger reads and writes the same Obsidian notes as Flight Deck (in `99 - Meta`), so the phone and the PC stay in sync.
+
+## What's in so far
+
+- **Shell**: module rail, Overview start page, Settings (pick your vault).
+- **Kits**: item kits (Pocket, Backpack, custom) and packing lists (Packing, Car, Go bag, pouch). Repack, nights, tick, skip, "checked" dates.
+- **Tools**: the Hangar tools page. **Did I?** is built; the rest show as "soon".
+
+Next: Capture, Screenshot Sorting, Overview widgets, Vinyl Pi, Lab, more Tools. See the build plan.
+
+## Stack
+
+Tauri 2, React 19, TypeScript, Rust. Vault access goes through a `VaultPort` (Tauri commands on desktop, in-memory mock in the browser and tests). Writes are atomic and limited to the vault's `99 - Meta` folder.
+
+## Run
+
+```
+npm install
+npm run dev        # browser preview with a demo vault, http://localhost:1430
+npm test           # vitest
+npm run tauri dev  # the real app (needs the Tauri prerequisites for your OS)
+```
+
+The desktop build has not yet been run on a real Windows install. CI builds it.

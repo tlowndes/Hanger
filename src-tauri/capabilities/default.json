@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Permissions for Hanger's window. Files are only reached through Hanger's own commands, and only inside the vault's 99 - Meta folder.",
+  "windows": ["main"],
+  "permissions": ["core:default", "dialog:allow-open"]
+}
