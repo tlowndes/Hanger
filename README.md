@@ -6,9 +6,13 @@ Hanger reads and writes the same Obsidian notes as Flight Deck (in `99 - Meta`),
 
 ## What's in so far
 
-- **Shell**: module rail, Overview start page, Settings (pick your vault).
+- **Shell**: module rail, Settings (pick your vault), and the **Overview**: a widget grid you can drag, resize, remove and reset.
 - **Kits**: item kits (Pocket, Backpack, custom) and packing lists (Packing, Car, Go bag, pouch). Repack, nights, tick, skip, "checked" dates.
-- **Tools**: the Hangar tools page. **Did I?** is built; the rest show as "soon".
+- **Tasks**: your Quick Task note (add, tick with repeats, due dates, remove, Undo). Ctrl Shift Space brings Hanger forward from any app and opens the add box.
+- **Screenshots**: Ctrl Shift 3 saves the whole screen, Ctrl Shift 4 lets you drag a region (or use Region / Full screen on Sorting). Each one is saved to your screenshots folder and copied to the clipboard, so Sorting picks it up.
+- **Vinyl Pi**: what's on your turntable, read from the Pi at `http://vinyl.local` (change it in Settings): cover, tracklist with the playing track marked, recent records, and a Now playing widget on Overview. Settings has a **Built in / Separate** switch: Separate makes the tile open the Pi's own player page in your browser instead. Plain http to one host only.
+- **Sorting**: reads new screenshots on this PC (Windows OCR), names them by what is in them and files them by topic. Off until you switch it on, never deletes, every move has Undo. Older screenshots always wait for a look.
+- **Tools**: the Hangar tools page. **Did I?**, **Cool-off**, **Refill**, **Return Radar**, **Pocket Pass** and **Last Seen** are built; the rest show as "soon". Price tracking in Cool-off stays on the phone for now.
 
 Next: Capture, Screenshot Sorting, Overview widgets, Vinyl Pi, Lab, more Tools. See the build plan.
 
