@@ -3,10 +3,10 @@ import type { AppSettings, Shell } from "../platform/desktop";
 
 export function SettingsPage({ shell, settings, onChange, onReload }: { shell: Shell; settings: AppSettings; onChange(s: AppSettings): void; onReload(): Promise<void> }) {
   const [hotkey, setHotkey] = useState<boolean | null>(null);
-  const [snipKey, setSnipKey] = useState<boolean | null>(null);
+  const [capKeys, setCapKeys] = useState<boolean | null>(null);
   useEffect(() => {
     void shell.hotkeyReady().then(setHotkey).catch(() => setHotkey(null));
-    void shell.snipHotkeyReady().then(setSnipKey).catch(() => setSnipKey(null));
+    void shell.captureHotkeysReady().then(setCapKeys).catch(() => setCapKeys(null));
   }, [shell]);
   return (
     <div className="content">
@@ -48,9 +48,9 @@ export function SettingsPage({ shell, settings, onChange, onReload }: { shell: S
         </div>
         <div className="row">
           <div className="grow">
-            <b>Snip key</b>
+            <b>Screenshot keys</b>
             <small className="muted">
-              {snipKey === null ? "Ctrl Shift 4 opens the Windows snipping overlay in the desktop app." : snipKey ? "Ctrl Shift 4 opens the Windows snipping overlay from any app." : "Another app already uses Ctrl Shift 4. Use the Snip button on the Sorting page, or Win Shift S."}
+              {capKeys === null ? "In the desktop app, Ctrl Shift 3 takes the whole screen and Ctrl Shift 4 lets you drag a region. Both save to your screenshots folder and copy to the clipboard." : capKeys ? "Ctrl Shift 3 takes the whole screen and Ctrl Shift 4 lets you drag a region, from any app. Both save to your screenshots folder and copy to the clipboard." : "Another app already uses Ctrl Shift 3 or 4. Use the Region and Full screen buttons on the Sorting page instead."}
             </small>
           </div>
         </div>

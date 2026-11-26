@@ -1,5 +1,6 @@
 //! Hanger desktop shell. The note logic lives in TypeScript; this side owns what only native code can do:
 //! the settings file and reading and writing notes inside the vault's `99 - Meta` folder.
+mod capture;
 mod settings;
 mod sorting;
 mod vault;
@@ -14,8 +15,8 @@ pub struct AppState {
     pub settings: Mutex<settings::Settings>,
     /// True when Ctrl Shift Space was free to claim as the system-wide Quick capture key.
     pub hotkey: AtomicBool,
-    /// True when Ctrl Shift 4 was free to claim for the snipping overlay.
-    pub snip_hotkey: AtomicBool,
+    /// True when Ctrl Shift 3 and 4 were both free to claim for screenshots.
+    pub capture_hotkeys: AtomicBool,
 }
 
 /// Ctrl Shift Space, from any app.
@@ -23,14 +24,17 @@ fn quick_capture_key() -> Shortcut {
     Shortcut::new(Some(Modifiers::CONTROL | Modifiers::SHIFT), Code::Space)
 }
 
-/// Ctrl Shift 4, from any app.
-fn snip_key() -> Shortcut {
+fn full_key() -> Shortcut {
+    Shortcut::new(Some(Modifiers::CONTROL | Modifiers::SHIFT), Code::Digit3)
+}
+
+fn region_key() -> Shortcut {
     Shortcut::new(Some(Modifiers::CONTROL | Modifiers::SHIFT), Code::Digit4)
 }
 
 #[tauri::command]
-fn snip_hotkey_ready(state: State<'_, AppState>) -> bool {
-    state.snip_hotkey.load(Ordering::Relaxed)
+fn capture_hotkeys_ready(state: State<'_, AppState>) -> bool {
+    state.capture_hotkeys.load(Ordering::Relaxed)
 }
 
 #[tauri::command]
@@ -76,8 +80,16 @@ pub fn run() {
                             let _ = w.set_focus();
                         }
                         let _ = app.emit("quick-capture", ());
-                    } else if shortcut == &snip_key() && event.state() == ShortcutState::Pressed {
-                        let _ = sorting::open_snip();
+                    } else if shortcut == &full_key() && event.state() == ShortcutState::Pressed {
+                        let app = app.clone();
+                        std::thread::spawn(move || {
+                            let _ = capture::capture_screen_now(&app);
+                        });
+                    } else if shortcut == &region_key() && event.state() == ShortcutState::Pressed {
+                        let app = app.clone();
+                        std::thread::spawn(move || {
+                            let _ = capture::start_region_now(&app);
+                        });
                     }
                 })
                 .build(),
@@ -86,16 +98,22 @@ pub fn run() {
             let s = settings::load(app.handle());
             // Another app may already own the key. Hanger still runs; Settings says so.
             let claimed = app.global_shortcut().register(quick_capture_key()).is_ok();
-            let snip_claimed = app.global_shortcut().register(snip_key()).is_ok();
-            app.manage(AppState { settings: Mutex::new(s), hotkey: AtomicBool::new(claimed), snip_hotkey: AtomicBool::new(snip_claimed) });
+            let full_ok = app.global_shortcut().register(full_key()).is_ok();
+            let region_ok = app.global_shortcut().register(region_key()).is_ok();
+            app.manage(capture::CaptureState::default());
+            app.manage(AppState { settings: Mutex::new(s), hotkey: AtomicBool::new(claimed), capture_hotkeys: AtomicBool::new(full_ok && region_ok) });
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
             get_settings,
             set_settings,
             hotkey_ready,
-            snip_hotkey_ready,
-            sorting::snip,
+            capture_hotkeys_ready,
+            capture::capture_screen,
+            capture::capture_region_start,
+            capture::capture_picker_image,
+            capture::capture_region,
+            capture::capture_cancel,
             sorting::sort_defaults,
             sorting::sort_list,
             sorting::sort_ocr,

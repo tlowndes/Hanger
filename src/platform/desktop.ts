@@ -30,10 +30,14 @@ export interface Shell {
   onQuickCapture(cb: () => void): Promise<() => void>;
   /** Whether Hanger could claim Ctrl Shift Space system-wide (null in the browser preview). */
   hotkeyReady(): Promise<boolean | null>;
-  /** Opens the Windows snipping overlay. */
-  snip(): Promise<void>;
-  /** Whether Hanger could claim Ctrl Shift 4 for snipping (null in the browser preview). */
-  snipHotkeyReady(): Promise<boolean | null>;
+  /** Saves the whole screen under the pointer to the screenshots folder and copies it. Returns the saved path. */
+  captureScreen(): Promise<string>;
+  /** Freezes the screen and opens the drag-to-capture picker. */
+  captureRegion(): Promise<void>;
+  /** Whether Hanger could claim Ctrl Shift 3 and 4 for screenshots (null in the browser preview). */
+  captureHotkeysReady(): Promise<boolean | null>;
+  /** Runs `cb` with the saved path each time a screenshot is saved. */
+  onCaptureSaved(cb: (path: string) => void): Promise<() => void>;
 }
 
 const inTauri = (): boolean => {
@@ -74,8 +78,10 @@ export function createShell(): Shell {
       },
       onQuickCapture: (cb) => listen("quick-capture", () => cb()),
       hotkeyReady: () => invoke<boolean>("hotkey_ready"),
-      snip: () => invoke<void>("snip"),
-      snipHotkeyReady: () => invoke<boolean>("snip_hotkey_ready"),
+      captureScreen: async () => (await invoke<{ path: string }>("capture_screen")).path,
+      captureRegion: () => invoke<void>("capture_region_start"),
+      captureHotkeysReady: () => invoke<boolean>("capture_hotkeys_ready"),
+      onCaptureSaved: (cb) => listen<{ path: string; copied: boolean }>("capture-saved", (e) => cb(e.payload.path)),
     };
   }
   let settings: AppSettings = { vault: "demo", sorting: defaultSorting() };
@@ -91,9 +97,13 @@ export function createShell(): Shell {
     pickFolder: async () => "demo",
     onQuickCapture: async () => () => undefined,
     hotkeyReady: async () => null,
-    snip: async () => {
-      throw new Error("Snipping only works in the desktop app.");
+    captureScreen: async () => {
+      throw new Error("Screenshots only work in the desktop app.");
     },
-    snipHotkeyReady: async () => null,
+    captureRegion: async () => {
+      throw new Error("Screenshots only work in the desktop app.");
+    },
+    captureHotkeysReady: async () => null,
+    onCaptureSaved: async () => () => undefined,
   };
 }

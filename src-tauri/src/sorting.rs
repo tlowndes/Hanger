@@ -81,43 +81,29 @@ fn check_in_roots(state: &State<'_, AppState>, path: &str) -> Result<(), String>
     }
 }
 
-/// Opens the Windows snipping overlay (the same as Win+Shift+S). On Windows 11 the Snipping Tool saves each snip to
-/// Pictures\Screenshots, which is where Sorting looks.
-pub fn open_snip() -> Result<(), String> {
-    #[cfg(windows)]
-    {
-        use std::os::windows::process::CommandExt;
-        const CREATE_NO_WINDOW: u32 = 0x0800_0000;
-        std::process::Command::new("explorer.exe")
-            .arg("ms-screenclip:")
-            .creation_flags(CREATE_NO_WINDOW)
-            .spawn()
-            .map(|_| ())
-            .map_err(|e| format!("Couldn't open the Snipping Tool: {e}"))
-    }
-    #[cfg(not(windows))]
-    {
-        Err("Snipping is a Windows feature.".into())
+pub fn pictures_dir() -> Option<PathBuf> {
+    let home = std::env::var("USERPROFILE").or_else(|_| std::env::var("HOME")).unwrap_or_default();
+    if home.is_empty() {
+        None
+    } else {
+        Some(Path::new(&home).join("Pictures"))
     }
 }
 
-#[tauri::command]
-pub fn snip() -> Result<(), String> {
-    open_snip()
+pub fn default_screenshots_dir() -> Option<PathBuf> {
+    pictures_dir().map(|p| p.join("Screenshots"))
 }
 
 /// The folders Windows normally uses, as a starting point for Settings.
 #[tauri::command]
 pub fn sort_defaults() -> (String, String) {
-    let home = std::env::var("USERPROFILE").or_else(|_| std::env::var("HOME")).unwrap_or_default();
-    if home.is_empty() {
-        return (String::new(), String::new());
+    match pictures_dir() {
+        Some(pics) => (
+            pics.join("Screenshots").to_string_lossy().into_owned(),
+            pics.join("Sorted Screenshots").to_string_lossy().into_owned(),
+        ),
+        None => (String::new(), String::new()),
     }
-    let pics = Path::new(&home).join("Pictures");
-    (
-        pics.join("Screenshots").to_string_lossy().into_owned(),
-        pics.join("Sorted Screenshots").to_string_lossy().into_owned(),
-    )
 }
 
 #[tauri::command]

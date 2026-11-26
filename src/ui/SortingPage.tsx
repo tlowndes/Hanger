@@ -31,15 +31,24 @@ export function SortingPage({ shell, sorting }: { shell: Shell; sorting: Sorting
   const st = sorting.settings;
   const ready = Boolean(st.screenshots && st.sorted);
   const history = filed(sorting.log).slice(0, 12);
-  const [snipError, setSnipError] = useState<string | null>(null);
-  const snip = async () => {
-    setSnipError(null);
+  const [note, setNote] = useState<string | null>(null);
+  const run = async (go: () => Promise<unknown>) => {
+    setNote(null);
     try {
-      await shell.snip();
+      await go();
     } catch (e) {
-      setSnipError(e instanceof Error ? e.message : String(e));
+      setNote(e instanceof Error ? e.message : String(e));
     }
   };
+  useEffect(() => {
+    let off: (() => void) | undefined;
+    let gone = false;
+    void shell.onCaptureSaved((p) => setNote(`Saved: ${fileOf(p)} (also copied to the clipboard)`)).then((f) => (gone ? f() : (off = f)));
+    return () => {
+      gone = true;
+      off?.();
+    };
+  }, [shell]);
 
   const pick = async (key: "screenshots" | "sorted") => {
     const folder = await shell.pickFolder();
@@ -58,12 +67,13 @@ export function SortingPage({ shell, sorting }: { shell: Shell; sorting: Sorting
           <p className="sub">Reads each new screenshot on this PC, names it by what's in it and files it by topic. Nothing is deleted, and every move can be undone.</p>
         </div>
         <div className="actions">
-          <button className="chip" onClick={() => void snip()} title="Opens the Windows snipping overlay. Ctrl Shift 4 does the same from any app.">Snip</button>
+          <button className="chip" onClick={() => void run(() => shell.captureRegion())} title="Drag over the screen to capture it. Ctrl Shift 4 does the same from any app.">Region</button>
+          <button className="chip" onClick={() => void run(() => shell.captureScreen())} title="Captures the whole screen. Ctrl Shift 3 does the same from any app.">Full screen</button>
           <button className="chip" onClick={() => void sorting.scanNow()} disabled={!ready || sorting.busy}>{sorting.busy ? "Looking…" : "Scan now"}</button>
           <button className={st.on ? "btn" : "chip"} onClick={() => void sorting.setOn(!st.on)} disabled={!ready}>{st.on ? "Auto-filing on" : "Turn on auto-filing"}</button>
         </div>
       </header>
-      {snipError && <div className="banner" role="alert"><span>{snipError}</span></div>}
+      {note && <div className="banner" role="status"><span>{note}</span></div>}
       {sorting.errors.length > 0 && <div className="banner" role="alert"><span>{sorting.errors[0]}</span></div>}
 
       <section className="panel">
