@@ -10,6 +10,8 @@ import type { DidIState } from "./useDidI";
 import type { SortingState } from "./useSorting";
 import type { TasksState } from "./useTasks";
 import type { VinylState } from "./useVinyl";
+import type { LabState } from "./useLab";
+import { keyOf } from "../core/lab";
 import { byline, playingTrack, short, sideTracks } from "../core/vinyl";
 import type { KitsState } from "./useKits";
 
@@ -20,6 +22,7 @@ export interface Data {
   tasks: TasksState;
   sorting: SortingState;
   vinyl: VinylState;
+  lab: LabState;
 }
 /** What a widget shows. `lines` is the list a Tall widget has room for. */
 export interface View {
@@ -39,13 +42,14 @@ export const DEFS: WidgetDef[] = [
   { id: "tasks", title: "Tasks", size: "M" },
   { id: "sorting", title: "Screenshots", size: "S" },
   { id: "vinyl", title: "Now playing", size: "M" },
+  { id: "lab", title: "Lab", size: "S" },
   { id: "didi", title: "Did I?", size: "S" },
   { id: "cool", title: "Cool-off", size: "S" },
   { id: "refill", title: "Refill", size: "S" },
   { id: "returns", title: "Return Radar", size: "M" },
   { id: "seen", title: "Last Seen", size: "S" },
 ];
-export const DEFAULT_ON = ["packing", "tasks", "vinyl", "didi", "checks", "refill", "returns", "cool", "seen"];
+export const DEFAULT_ON = ["packing", "tasks", "vinyl", "lab", "didi", "checks", "refill", "returns", "cool", "seen"];
 
 export function view(id: string, d: Data): View | null {
   const t = today();
@@ -78,6 +82,14 @@ export function view(id: string, d: Data): View | null {
       const track = now ? playingTrack(now) : null;
       const note = v.status === "off" ? "Add the Pi's address in Settings" : v.status === "offline" ? "Can't reach the Pi" : v.status === "loading" ? "Asking the Pi…" : now ? (track ? `♫ ${track.title}` : byline(now)) : "Nothing on the platter";
       return { eyebrow: "Now playing", accent: "var(--vinyl)", open: "vinyl", big: now ? short(now.title) : "—", note, lines: now ? sideTracks(now).map((t) => `${t.number} ${t.title}`) : [] };
+    }
+    case "lab": {
+      const l = d.lab;
+      const t = l.tally;
+      const big = l.status === "ok" ? `${t.up} of ${t.total}` : "—";
+      const note = l.status === "off" ? "Add Homepage's address in Settings" : l.status === "offline" ? "Can't reach Homepage" : l.status === "loading" ? "Asking Homepage…" : t.down ? `Down: ${t.downNames.join(", ")}` : "All up";
+      const mark = (g: string, n: string): string => ({ up: "✓", down: "✗", unknown: "·" })[l.health[keyOf(g, n)] ?? "unknown"];
+      return { eyebrow: "Lab", accent: "var(--lab)", open: "lab", big, note, lines: l.groups.flatMap((g) => g.services.map((s) => `${mark(g.name, s.name)} ${s.name}`)) };
     }
     case "checks": {
       const cs = d.kits.lists.filter((l) => l.kind === "check" && due(l, t));

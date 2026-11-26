@@ -3,6 +3,7 @@
 mod capture;
 mod settings;
 mod sorting;
+mod lab;
 mod vault;
 mod vinyl;
 
@@ -122,7 +123,9 @@ pub fn run() {
             sorting::sort_move,
             vinyl::vinyl_state,
             vinyl::vinyl_cover,
-            vinyl::vinyl_open,
+            vinyl::open_link,
+            lab::lab_services,
+            lab::lab_status,
             vault::vault_list,
             vault::vault_read,
             vault::vault_write,

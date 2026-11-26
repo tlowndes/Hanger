@@ -7,13 +7,14 @@ import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-dialog";
 import type { VaultPort } from "../services/ports";
 import type { ShotPort, SortSettings } from "../services/sortingService";
-import { mockShots, mockVault, mockVinyl } from "./mock";
+import { mockShots, mockLab, mockVault, mockVinyl } from "./mock";
 
 export interface AppSettings {
   /** Vault root, the folder holding `.obsidian`. Empty until chosen. */
   vault: string;
   sorting: SortSettings;
   vinyl: VinylSettings;
+  lab: LabSettings;
 }
 
 export interface VinylSettings {
@@ -21,6 +22,20 @@ export interface VinylSettings {
   address: string;
   /** True when the Vinyl tile opens the Pi's own page in the browser instead of Hanger's built-in one. */
   separate: boolean;
+}
+
+/** The Homepage dashboard on the home network. Same shape as the Vinyl settings. */
+export type LabSettings = VinylSettings;
+export const defaultLab = (): LabSettings => ({ address: "", separate: false });
+
+/** Homepage, read-only. */
+export interface LabPort {
+  /** The dashboard's services JSON text. */
+  services(address: string): Promise<string>;
+  /** Homepage's Site Monitor answer for one service, as JSON text. */
+  status(address: string, group: string, service: string): Promise<string>;
+  /** Opens Homepage in the browser. */
+  open(address: string): Promise<void>;
 }
 
 export const defaultVinyl = (): VinylSettings => ({ address: "http://vinyl.local", separate: false });
@@ -42,6 +57,7 @@ export interface Shell {
   vault: VaultPort;
   shots: ShotPort;
   vinyl: VinylPort;
+  lab: LabPort;
   /** Windows' usual screenshot folder and a sensible place to sort them to. */
   sortDefaults(): Promise<[string, string]>;
   getSettings(): Promise<AppSettings>;
@@ -87,7 +103,13 @@ const tauriShots: ShotPort = {
 const tauriVinyl: VinylPort = {
   state: (address) => invoke<string>("vinyl_state", { address }),
   cover: (address, path) => invoke<string>("vinyl_cover", { address, path }),
-  open: (address) => invoke<void>("vinyl_open", { address }),
+  open: (address) => invoke<void>("open_link", { address }),
+};
+
+const tauriLab: LabPort = {
+  services: (address) => invoke<string>("lab_services", { address }),
+  status: (address, group, service) => invoke<string>("lab_status", { address, group, service }),
+  open: (address) => invoke<void>("open_link", { address }),
 };
 
 export function createShell(): Shell {
@@ -97,6 +119,7 @@ export function createShell(): Shell {
       vault: tauriVault,
       shots: tauriShots,
       vinyl: tauriVinyl,
+      lab: tauriLab,
       sortDefaults: () => invoke<[string, string]>("sort_defaults"),
       getSettings: () => invoke<AppSettings>("get_settings"),
       setSettings: (next) => invoke<void>("set_settings", { next }),
@@ -112,12 +135,13 @@ export function createShell(): Shell {
       onCaptureSaved: (cb) => listen<{ path: string; copied: boolean }>("capture-saved", (e) => cb(e.payload.path)),
     };
   }
-  let settings: AppSettings = { vault: "demo", sorting: defaultSorting(), vinyl: defaultVinyl() };
+  let settings: AppSettings = { vault: "demo", sorting: defaultSorting(), vinyl: defaultVinyl(), lab: { address: "http://homepage.local:3000", separate: false } };
   return {
     desktop: false,
     vault: mockVault(),
     shots: mockShots(),
     vinyl: mockVinyl(),
+    lab: mockLab(),
     sortDefaults: async () => ["C:\\Pictures\\Screenshots", "C:\\Pictures\\Sorted Screenshots"],
     getSettings: async () => settings,
     setSettings: async (next) => {

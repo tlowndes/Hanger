@@ -23,7 +23,7 @@ pub fn base_url(address: &str) -> Option<String> {
     Some(format!("http://{rest}"))
 }
 
-fn get(url: &str, limit: u64) -> Result<(Vec<u8>, String), String> {
+pub fn get(url: &str, limit: u64) -> Result<(Vec<u8>, String), String> {
     let agent = ureq::AgentBuilder::new().timeout(Duration::from_secs(4)).build();
     let resp = agent.get(url).call().map_err(|_| "Couldn't reach the Vinyl Pi. Is it on, and is the address right?".to_string())?;
     let kind = resp.content_type().to_string();
@@ -60,10 +60,10 @@ pub async fn vinyl_cover(address: String, path: String) -> Result<String, String
     .map_err(|e| e.to_string())?
 }
 
-/// Opens the Pi's own player page in the default browser.
+/// Opens a home-network page (the Pi's player, Homepage) in the default browser.
 #[tauri::command]
-pub fn vinyl_open(address: String) -> Result<(), String> {
-    let base = base_url(&address).ok_or("That isn't a Vinyl Pi address.")?;
+pub fn open_link(address: String) -> Result<(), String> {
+    let base = base_url(&address).ok_or("That isn't a valid address.")?;
     #[cfg(windows)]
     {
         use std::os::windows::process::CommandExt;
