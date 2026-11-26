@@ -1,6 +1,7 @@
 /** Cool-off and Refill notes, plus the Did I? history Refill counts from. */
 import * as C from "../core/cooloff";
 import * as D from "../core/didi";
+import * as LS from "../core/lastseen";
 import * as PP from "../core/pocketpass";
 import * as R from "../core/refill";
 import * as RR from "../core/returns";
@@ -54,4 +55,12 @@ export async function loadCodes(port: VaultPort): Promise<PP.Code[]> {
 }
 export async function saveCodes(port: VaultPort, cs: PP.Code[]): Promise<void> {
   await port.write(PP.NOTE, PP.render(await readOr(port, PP.NOTE, PP.STARTER), cs));
+}
+
+// ---- Last Seen ----
+export async function loadSeen(port: VaultPort): Promise<LS.Seen[]> {
+  return LS.parse(await readOr(port, LS.NOTE, LS.STARTER));
+}
+export async function saveSeen(port: VaultPort, items: LS.Seen[], today: string): Promise<void> {
+  await port.write(LS.NOTE, LS.render(await readOr(port, LS.NOTE, LS.STARTER), LS.prune(items, today)));
 }

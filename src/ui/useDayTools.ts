@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import * as C from "../core/cooloff";
+import * as LS from "../core/lastseen";
 import * as PP from "../core/pocketpass";
 import * as R from "../core/refill";
 import * as RR from "../core/returns";
@@ -11,6 +12,7 @@ export interface DayState {
   meds: R.Med[];
   returns: RR.Return[];
   codes: PP.Code[];
+  seen: LS.Seen[];
   /** Doses left per med name, counted from Did I? ticks. */
   left: Record<string, number>;
   loading: boolean;
@@ -20,6 +22,7 @@ export interface DayState {
   saveMeds(next: R.Med[]): Promise<void>;
   saveReturns(next: RR.Return[]): Promise<void>;
   saveCodes(next: PP.Code[]): Promise<void>;
+  saveSeen(next: LS.Seen[]): Promise<void>;
   reload(): Promise<void>;
 }
 
@@ -30,6 +33,7 @@ export function useDayTools(port: VaultPort): DayState {
   const [meds, setMeds] = useState<R.Med[]>([]);
   const [returns, setReturns] = useState<RR.Return[]>([]);
   const [codes, setCodes] = useState<PP.Code[]>([]);
+  const [seen, setSeen] = useState<LS.Seen[]>([]);
   const [left, setLeft] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,11 +52,12 @@ export function useDayTools(port: VaultPort): DayState {
   const reload = useCallback(async () => {
     setLoading(true);
     try {
-      const [c, m, r, k] = await Promise.all([S.loadCool(port), S.loadMeds(port), S.loadReturns(port), S.loadCodes(port)]);
+      const [c, m, r, k, ls] = await Promise.all([S.loadCool(port), S.loadMeds(port), S.loadReturns(port), S.loadCodes(port), S.loadSeen(port)]);
       setCool(c);
       setMeds(m);
       setReturns(r);
       setCodes(k);
+      setSeen(ls);
       await count(m);
       setError(null);
     } catch (e) {
@@ -71,6 +76,7 @@ export function useDayTools(port: VaultPort): DayState {
     meds,
     returns,
     codes,
+    seen,
     left,
     loading,
     error,
@@ -93,6 +99,16 @@ export function useDayTools(port: VaultPort): DayState {
         await enqueue(() => S.saveReturns(port, next));
       } catch (e) {
         setReturns(prev);
+        setError(message(e));
+      }
+    },
+    saveSeen: async (next) => {
+      const prev = seen;
+      setSeen(next);
+      try {
+        await enqueue(() => S.saveSeen(port, next, today()));
+      } catch (e) {
+        setSeen(prev);
         setError(message(e));
       }
     },

@@ -21,7 +21,7 @@ const TOOLS: Tool[] = [
   { glyph: "✚", name: "Refill", blurb: "Count meds down", open: "refill" },
   { glyph: "↩", name: "Return Radar", blurb: "Return-by dates", open: "returns" },
   { glyph: "#", name: "Pocket Pass", blurb: "Codes you always hunt for", open: "pass" },
-  { glyph: "⌖", name: "Last Seen", blurb: "Where you put things" },
+  { glyph: "⌖", name: "Last Seen", blurb: "Where you put things", open: "seen" },
   { glyph: "☾", name: "Night Pad", blurb: "Evening pack and charge" },
   { glyph: "◔", name: "Heads Up", blurb: "Leave-by buzzes" },
   { glyph: "☀", name: "Daily Brief", blurb: "Needs the server" },
@@ -50,7 +50,7 @@ export function ToolsPage({ kits, didi, day, go }: { kits: KitsState; didi: DidI
       <div className="tools">
         {TOOLS.map((t) => {
           const built = t.open !== undefined;
-          const note = t.open === "kits" ? `${kits.kits.length} kits · ${kits.lists.length} lists` : t.open === "didi" && !didi.loading ? didi.progress : t.open === "cool" && !day.loading ? `${day.cool.filter((c) => c.step === "cooling").length} cooling` : t.open === "refill" && !day.loading ? (day.meds.length ? `${day.meds.length} meds` : t.blurb) : t.open === "returns" && !day.loading ? `${day.returns.filter((r) => RR.isOpen(r)).length} to send back` : t.open === "pass" && !day.loading ? `${day.codes.length} codes` : t.blurb;
+          const note = t.open === "kits" ? `${kits.kits.length} kits · ${kits.lists.length} lists` : t.open === "didi" && !didi.loading ? didi.progress : t.open === "cool" && !day.loading ? `${day.cool.filter((c) => c.step === "cooling").length} cooling` : t.open === "refill" && !day.loading ? (day.meds.length ? `${day.meds.length} meds` : t.blurb) : t.open === "returns" && !day.loading ? `${day.returns.filter((r) => RR.isOpen(r)).length} to send back` : t.open === "seen" && !day.loading ? `${day.seen.filter((x) => !x.found).length} out` : t.open === "pass" && !day.loading ? `${day.codes.length} codes` : t.blurb;
           return (
             <button key={t.name} className={`tool${built ? "" : " soon"}`} disabled={!built} onClick={() => t.open && go(t.open)} aria-label={built ? t.name : `${t.name}, not in Hanger yet`}>
               <span className="e" aria-hidden>{t.glyph}</span>
