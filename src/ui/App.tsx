@@ -2,12 +2,17 @@ import { useEffect, useMemo, useState } from "react";
 import { createShell, type AppSettings } from "../platform/desktop";
 import { MODULES, moduleById, type ModuleId } from "../modules/registry";
 import { DidIPage } from "./DidIPage";
+import { CoolOffPage } from "./CoolOffPage";
+import { RefillPage } from "./RefillPage";
+import { useDayTools } from "./useDayTools";
 import { useDidI } from "./useDidI";
 import { KitsPage } from "./KitsPage";
 import { Overview } from "./Overview";
 import { SettingsPage } from "./SettingsPage";
 import { ToolsPage } from "./ToolsPage";
 import { useKits } from "./useKits";
+
+const TOOL_PAGES: ModuleId[] = ["didi", "cool", "refill"];
 
 export function App() {
   const shell = useMemo(createShell, []);
@@ -57,7 +62,8 @@ function Frame(props: {
   const kitsState = useKits(shell.vault);
   const active = moduleById(page);
   const didi = useDidI(shell.vault);
-  const railOn = (id: ModuleId) => page === id || (id === "tools" && page === "didi");
+  const day = useDayTools(shell.vault);
+  const railOn = (id: ModuleId) => page === id || (id === "tools" && TOOL_PAGES.includes(page));
 
   return (
     <div className="win" style={{ ["--a" as string]: active.accent }}>
@@ -81,8 +87,10 @@ function Frame(props: {
           </div>
         )}
         {page === "overview" && <Overview kits={kitsState} go={setPage} />}
-        {page === "tools" && <ToolsPage kits={kitsState} didi={didi} go={setPage} />}
+        {page === "tools" && <ToolsPage kits={kitsState} didi={didi} day={day} go={setPage} />}
         {page === "kits" && <KitsPage kits={kitsState} />}
+        {page === "cool" && <CoolOffPage day={day} back={() => setPage("tools")} />}
+        {page === "refill" && <RefillPage day={day} back={() => setPage("tools")} />}
         {page === "didi" && <DidIPage didi={didi} back={() => setPage("tools")} />}
         {page === "settings" && <SettingsPage shell={shell} settings={settings} onChange={props.setSettings} onReload={kitsState.reload} />}
       </main>

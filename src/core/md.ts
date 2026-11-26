@@ -34,3 +34,32 @@ export function title(lines: string[]): string | null {
   }
   return null;
 }
+
+/** Keeps the note's header (everything before the first list line) and replaces the list with `body`. */
+export function rewriteList(text: string, body: string[]): string {
+  const lines = toLines(text);
+  const head: string[] = [];
+  for (const l of lines) {
+    if (l.trimStart().startsWith("- ")) break;
+    head.push(l);
+  }
+  while (head.length && !head[head.length - 1].trim()) head.pop();
+  return [...head, "", ...body].join("\n") + "\n";
+}
+
+const p2 = (n: number) => String(n).padStart(2, "0");
+/** `2026-11-20 17:40` in local time. */
+export const stampText = (d: Date): string => `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())} ${p2(d.getHours())}:${p2(d.getMinutes())}`;
+export function parseStamp(s: string): Date | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})$/.exec(s.trim());
+  return m ? new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]) : null;
+}
+/** `2026-11-20` in local time. */
+export const dayText = (d: Date): string => `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`;
+export const parseDay = (s: string): Date => {
+  const [y, m, d] = s.split("-").map(Number);
+  return new Date(y, m - 1, d);
+};
+export const addDays = (d: Date, n: number): Date => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n, d.getHours(), d.getMinutes());
+/** "£249", or "£249.50" when there are pence. */
+export const money = (p: number): string => (Number.isInteger(p) ? `£${p}` : `£${p.toFixed(2)}`);
