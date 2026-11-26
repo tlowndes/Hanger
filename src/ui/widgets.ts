@@ -7,6 +7,7 @@ import type { ModuleId } from "../modules/registry";
 import { today } from "../services/ports";
 import type { DayState } from "./useDayTools";
 import type { DidIState } from "./useDidI";
+import type { SortingState } from "./useSorting";
 import type { TasksState } from "./useTasks";
 import type { KitsState } from "./useKits";
 
@@ -15,6 +16,7 @@ export interface Data {
   didi: DidIState;
   day: DayState;
   tasks: TasksState;
+  sorting: SortingState;
 }
 /** What a widget shows. `lines` is the list a Tall widget has room for. */
 export interface View {
@@ -32,6 +34,7 @@ export const DEFS: WidgetDef[] = [
   { id: "packing", title: "Packing", size: "M" },
   { id: "checks", title: "Checks due", size: "S" },
   { id: "tasks", title: "Tasks", size: "M" },
+  { id: "sorting", title: "Screenshots", size: "S" },
   { id: "didi", title: "Did I?", size: "S" },
   { id: "cool", title: "Cool-off", size: "S" },
   { id: "refill", title: "Refill", size: "S" },
@@ -59,6 +62,11 @@ export function view(id: string, d: Data): View | null {
       const dueNow = open.filter((x) => x.due !== null && x.due <= t);
       const next = dueNow[0] ?? open[0];
       return { eyebrow: "Tasks", accent: "var(--task)", open: "tasks", big: dueNow.length ? `${dueNow.length} due` : String(open.length), note: next ? next.text : "Nothing to do", lines: open.map((x) => (x.due ? `${x.text} · ${x.due}` : x.text)) };
+    }
+    case "sorting": {
+      const n = d.sorting.review.length;
+      const st = d.sorting.settings;
+      return { eyebrow: "Screenshots", accent: "var(--sort)", open: "sorting", big: st.screenshots ? String(n) : "—", note: !st.screenshots ? "Not set up yet" : n ? "to review" : st.on ? "All filed" : "Auto-filing off", lines: d.sorting.review.map((x) => x.newName) };
     }
     case "checks": {
       const cs = d.kits.lists.filter((l) => l.kind === "check" && due(l, t));

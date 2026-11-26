@@ -1,6 +1,7 @@
 //! Hanger desktop shell. The note logic lives in TypeScript; this side owns what only native code can do:
 //! the settings file and reading and writing notes inside the vault's `99 - Meta` folder.
 mod settings;
+mod sorting;
 mod vault;
 
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -78,6 +79,11 @@ pub fn run() {
             get_settings,
             set_settings,
             hotkey_ready,
+            sorting::sort_defaults,
+            sorting::sort_list,
+            sorting::sort_ocr,
+            sorting::sort_thumb,
+            sorting::sort_move,
             vault::vault_list,
             vault::vault_read,
             vault::vault_write,

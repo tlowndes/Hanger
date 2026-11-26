@@ -10,6 +10,29 @@ use tauri::{AppHandle, Manager};
 pub struct Settings {
     /// Vault root, the folder holding `.obsidian`. Empty until chosen.
     pub vault: String,
+    /// Screenshot sorting. Folders are per PC, so they live here and not in the vault.
+    pub sorting: Sorting,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase", default)]
+pub struct Sorting {
+    /// Where Windows saves screenshots. Empty until chosen.
+    pub screenshots: String,
+    /// Where sorted screenshots go, in a folder per category. Empty until chosen.
+    pub sorted: String,
+    /// Off until switched on, so nothing moves without a go-ahead.
+    pub on: bool,
+    /// "careful", "normal" or "relaxed": how sure Hanger must be before it files one without asking.
+    pub sureness: String,
+    /// Seconds since 1970 when sorting was switched on. Older screenshots are only filed after a look.
+    pub since: i64,
+}
+
+impl Default for Sorting {
+    fn default() -> Self {
+        Sorting { screenshots: String::new(), sorted: String::new(), on: false, sureness: "normal".into(), since: 0 }
+    }
 }
 
 fn file(app: &AppHandle) -> Option<PathBuf> {

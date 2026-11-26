@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { createShell, type AppSettings } from "../platform/desktop";
+import { createShell, defaultSorting, type AppSettings } from "../platform/desktop";
 import { MODULES, moduleById, type ModuleId } from "../modules/registry";
 import { DidIPage } from "./DidIPage";
 import { SeenPage } from "./SeenPage";
@@ -7,6 +7,8 @@ import { PassPage } from "./PassPage";
 import { ReturnsPage } from "./ReturnsPage";
 import { CoolOffPage } from "./CoolOffPage";
 import { RefillPage } from "./RefillPage";
+import { SortingPage } from "./SortingPage";
+import { useSorting } from "./useSorting";
 import { TasksPage } from "./TasksPage";
 import { useTasks } from "./useTasks";
 import { useDayTools } from "./useDayTools";
@@ -69,6 +71,11 @@ function Frame(props: {
   const didi = useDidI(shell.vault);
   const day = useDayTools(shell.vault);
   const tasks = useTasks(shell.vault);
+  const sorting = useSorting(shell, settings.sorting ?? defaultSorting(), async (next) => {
+    const merged = { ...settings, sorting: next };
+    await shell.setSettings(merged);
+    props.setSettings(merged);
+  });
   const [focusKey, setFocusKey] = useState(0);
   // Ctrl Shift Space: jump to Tasks with the add box ready.
   useEffect(() => {
@@ -116,7 +123,8 @@ function Frame(props: {
             <button className="chip" onClick={kitsState.clearError}>Dismiss</button>
           </div>
         )}
-        {page === "overview" && <Overview data={{ kits: kitsState, didi, day, tasks }} go={setPage} />}
+        {page === "overview" && <Overview data={{ kits: kitsState, didi, day, tasks, sorting }} go={setPage} />}
+        {page === "sorting" && <SortingPage shell={shell} sorting={sorting} />}
         {page === "tasks" && <TasksPage tasks={tasks} focusKey={focusKey} />}
         {page === "tools" && <ToolsPage kits={kitsState} didi={didi} day={day} go={setPage} />}
         {page === "kits" && <KitsPage kits={kitsState} />}

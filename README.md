@@ -9,6 +9,7 @@ Hanger reads and writes the same Obsidian notes as Flight Deck (in `99 - Meta`),
 - **Shell**: module rail, Settings (pick your vault), and the **Overview**: a widget grid you can drag, resize, remove and reset.
 - **Kits**: item kits (Pocket, Backpack, custom) and packing lists (Packing, Car, Go bag, pouch). Repack, nights, tick, skip, "checked" dates.
 - **Tasks**: your Quick Task note (add, tick with repeats, due dates, remove, Undo). Ctrl Shift Space brings Hanger forward from any app and opens the add box.
+- **Sorting**: reads new screenshots on this PC (Windows OCR), names them by what is in them and files them by topic. Off until you switch it on, never deletes, every move has Undo. Older screenshots always wait for a look.
 - **Tools**: the Hangar tools page. **Did I?**, **Cool-off**, **Refill**, **Return Radar**, **Pocket Pass** and **Last Seen** are built; the rest show as "soon". Price tracking in Cool-off stays on the phone for now.
 
 Next: Capture, Screenshot Sorting, Overview widgets, Vinyl Pi, Lab, more Tools. See the build plan.

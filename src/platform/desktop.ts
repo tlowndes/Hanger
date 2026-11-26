@@ -6,16 +6,23 @@ import { invoke, isTauri } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-dialog";
 import type { VaultPort } from "../services/ports";
-import { mockVault } from "./mock";
+import type { ShotPort, SortSettings } from "../services/sortingService";
+import { mockShots, mockVault } from "./mock";
 
 export interface AppSettings {
   /** Vault root, the folder holding `.obsidian`. Empty until chosen. */
   vault: string;
+  sorting: SortSettings;
 }
+
+export const defaultSorting = (): SortSettings => ({ screenshots: "", sorted: "", on: false, sureness: "normal", since: 0 });
 
 export interface Shell {
   desktop: boolean;
   vault: VaultPort;
+  shots: ShotPort;
+  /** Windows' usual screenshot folder and a sensible place to sort them to. */
+  sortDefaults(): Promise<[string, string]>;
   getSettings(): Promise<AppSettings>;
   setSettings(next: AppSettings): Promise<void>;
   pickFolder(): Promise<string | null>;
@@ -41,11 +48,20 @@ const tauriVault: VaultPort = {
   exists: (path) => invoke<boolean>("vault_exists", { path }),
 };
 
+const tauriShots: ShotPort = {
+  list: (folder) => invoke("sort_list", { folder }),
+  ocr: (path) => invoke("sort_ocr", { path }),
+  move: (from, destDir, fileName) => invoke("sort_move", { from, destDir, fileName }),
+  thumb: (path) => invoke("sort_thumb", { path }),
+};
+
 export function createShell(): Shell {
   if (inTauri()) {
     return {
       desktop: true,
       vault: tauriVault,
+      shots: tauriShots,
+      sortDefaults: () => invoke<[string, string]>("sort_defaults"),
       getSettings: () => invoke<AppSettings>("get_settings"),
       setSettings: (next) => invoke<void>("set_settings", { next }),
       pickFolder: async () => {
@@ -56,10 +72,12 @@ export function createShell(): Shell {
       hotkeyReady: () => invoke<boolean>("hotkey_ready"),
     };
   }
-  let settings: AppSettings = { vault: "demo" };
+  let settings: AppSettings = { vault: "demo", sorting: defaultSorting() };
   return {
     desktop: false,
     vault: mockVault(),
+    shots: mockShots(),
+    sortDefaults: async () => ["C:\\Pictures\\Screenshots", "C:\\Pictures\\Sorted Screenshots"],
     getSettings: async () => settings,
     setSettings: async (next) => {
       settings = next;
