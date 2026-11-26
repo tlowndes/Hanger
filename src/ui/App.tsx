@@ -89,7 +89,7 @@ function Frame(props: {
             <button className="chip" onClick={kitsState.clearError}>Dismiss</button>
           </div>
         )}
-        {page === "overview" && <Overview kits={kitsState} go={setPage} />}
+        {page === "overview" && <Overview data={{ kits: kitsState, didi, day }} go={setPage} />}
         {page === "tools" && <ToolsPage kits={kitsState} didi={didi} day={day} go={setPage} />}
         {page === "kits" && <KitsPage kits={kitsState} />}
         {page === "returns" && <ReturnsPage day={day} back={() => setPage("tools")} />}

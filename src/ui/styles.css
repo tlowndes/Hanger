@@ -131,3 +131,18 @@ h2 { font-size: 15px; padding: 0 10px 12px; }
 .row small { color: var(--muted); font-size: 12px; } .row a { color: var(--a); }
 .dadd select { background: var(--surface); border: 1px solid var(--surface2); border-radius: 999px; padding: 7px 12px; }
 .mono { font-variant-numeric: tabular-nums; letter-spacing: 0.4px; }
+
+/* Overview widget grid */
+.wgrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-flow: dense; grid-auto-rows: minmax(124px, auto); gap: 14px; }
+.wgrid .wS { grid-column: span 1; } .wgrid .wM { grid-column: span 2; } .wgrid .wW { grid-column: span 4; } .wgrid .wT { grid-column: span 2; grid-row: span 2; }
+@media (max-width: 900px) { .wgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .wgrid .wW { grid-column: span 2; } }
+.card { position: relative; }
+.card .eyebrow { color: var(--a); font-size: 11.5px; letter-spacing: 1.2px; font-weight: 600; text-transform: uppercase; }
+.wlines { margin: 6px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; color: var(--muted); }
+.wgrid.editing .card.edit { cursor: grab; outline: 1px dashed var(--surface2); justify-content: flex-start; }
+.card.edit.drag { opacity: 0.4; } .card.edit.over { outline: 2px solid var(--a); }
+.wtools { margin-top: auto; padding-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.wtools .chip { padding: 4px 10px; font-size: 12px; }
+.wtools select { background: var(--surface2); border: 0; border-radius: 999px; padding: 4px 8px; font-size: 12px; }
+.drawer { margin-top: 18px; }
+.actions { display: flex; gap: 8px; align-items: center; }
