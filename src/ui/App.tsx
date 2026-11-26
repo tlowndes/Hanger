@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { createShell, defaultSorting, defaultVinyl, defaultLab, type AppSettings } from "../platform/desktop";
+import { createShell, defaultSorting, defaultVinyl, defaultLab, defaultWeather, type AppSettings } from "../platform/desktop";
 import { MODULES, moduleById, type ModuleId } from "../modules/registry";
 import { DidIPage } from "./DidIPage";
 import { SeenPage } from "./SeenPage";
@@ -20,10 +20,11 @@ import { useDidI } from "./useDidI";
 import { KitsPage } from "./KitsPage";
 import { Overview } from "./Overview";
 import { SettingsPage } from "./SettingsPage";
+import { LaunchPadPage } from "./LaunchPadPage";
 import { ToolsPage } from "./ToolsPage";
 import { useKits } from "./useKits";
 
-const TOOL_PAGES: ModuleId[] = ["didi", "cool", "refill", "returns", "pass", "seen"];
+const TOOL_PAGES: ModuleId[] = ["didi", "launch", "cool", "refill", "returns", "pass", "seen"];
 
 export function App() {
   const shell = useMemo(createShell, []);
@@ -147,6 +148,7 @@ function Frame(props: {
         {page === "pass" && <PassPage day={day} back={() => setPage("tools")} />}
         {page === "cool" && <CoolOffPage day={day} back={() => setPage("tools")} />}
         {page === "refill" && <RefillPage day={day} back={() => setPage("tools")} />}
+        {page === "launch" && <LaunchPadPage shell={shell} weather={settings.weather ?? defaultWeather()} back={() => setPage("tools")} />}
         {page === "didi" && <DidIPage didi={didi} back={() => setPage("tools")} />}
         {page === "settings" && <SettingsPage shell={shell} settings={settings} onChange={props.setSettings} onReload={kitsState.reload} />}
       </main>

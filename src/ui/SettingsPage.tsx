@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { address as tidy } from "../core/vinyl";
-import { defaultLab, defaultVinyl, type AppSettings, type Shell } from "../platform/desktop";
+import { findPlace } from "../services/homeService";
+import { defaultLab, defaultVinyl, defaultWeather, type AppSettings, type Shell } from "../platform/desktop";
 
 export function SettingsPage({ shell, settings, onChange, onReload }: { shell: Shell; settings: AppSettings; onChange(s: AppSettings): void; onReload(): Promise<void> }) {
   const [hotkey, setHotkey] = useState<boolean | null>(null);
@@ -56,6 +57,7 @@ export function SettingsPage({ shell, settings, onChange, onReload }: { shell: S
           </div>
         </div>
       </section>
+      <WeatherRow shell={shell} settings={settings} onChange={onChange} />
       <HomeLink shell={shell} settings={settings} onChange={onChange} id="vinyl" name="Vinyl Pi" what="Pi" hint="vinyl.local or 192.168.1.20" built="shows what's playing inside Hanger" page="the Pi's own player page" />
       <HomeLink shell={shell} settings={settings} onChange={onChange} id="lab" name="Lab" what="Homepage" hint="192.168.1.20:3000" built="shows your services and their up or down state inside Hanger" page="Homepage" />
     </div>
@@ -98,6 +100,46 @@ function HomeLink({ shell, settings, onChange, id, name, what, hint, built, page
         </div>
         <button className={cur.separate ? "chip" : "btn"} onClick={() => void save({ separate: false })} aria-pressed={!cur.separate}>Built in</button>
         <button className={cur.separate ? "btn" : "chip"} onClick={() => void save({ separate: true })} aria-pressed={cur.separate}>Separate</button>
+      </div>
+    </section>
+  );
+}
+
+/** Your town for the weather: found once with Open-Meteo and saved, so Launch Pad needs no location permission. */
+function WeatherRow({ shell, settings, onChange }: { shell: Shell; settings: AppSettings; onChange(s: AppSettings): void }) {
+  const cur = settings.weather ?? defaultWeather();
+  const [place, setPlace] = useState(cur.place);
+  const [note, setNote] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const find = async () => {
+    if (!place.trim()) return;
+    setBusy(true);
+    setNote(null);
+    try {
+      const p = await findPlace(shell.home, place);
+      if (!p) {
+        setNote("Couldn't find that town. Try the town and country.");
+        return;
+      }
+      const next = { ...settings, weather: { place: place.trim(), name: p.name, lat: p.lat, lon: p.lon } };
+      await shell.setSettings(next);
+      onChange(next);
+      setNote(`Using ${p.name}.`);
+    } catch (e) {
+      setNote(e instanceof Error ? e.message : typeof e === "string" ? e : "Couldn't look that up.");
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <section className="panel" style={{ marginTop: 12 }}>
+      <div className="row">
+        <div className="grow">
+          <b>Weather town</b>
+          <small className="muted">{note ?? (cur.name ? `Using ${cur.name}. Launch Pad reads the rain chance and low from Open-Meteo.` : "Used by Launch Pad for the rain chance and low. Nothing else is sent.")}</small>
+        </div>
+        <input aria-label="Weather town" value={place} placeholder="Manchester" onChange={(e) => setPlace(e.target.value)} onKeyDown={(e) => e.key === "Enter" && void find()} />
+        <button className="btn" onClick={() => void find()} disabled={busy || !place.trim()}>{busy ? "Finding…" : "Find"}</button>
       </div>
     </section>
   );

@@ -16,7 +16,7 @@ interface Tool {
 const TOOLS: Tool[] = [
   { glyph: "🎒", name: "Kits", blurb: "What to take, and packing lists", open: "kits" },
   { glyph: "✓", name: "Did I?", blurb: "Meds, door, hob", open: "didi" },
-  { glyph: "↗", name: "Launch Pad", blurb: "Leave-the-house pass" },
+  { glyph: "↗", name: "Launch Pad", blurb: "Leave-the-house pass", open: "launch" },
   { glyph: "❄", name: "Cool-off", blurb: "Wait before impulse buys", open: "cool" },
   { glyph: "✚", name: "Refill", blurb: "Count meds down", open: "refill" },
   { glyph: "↩", name: "Return Radar", blurb: "Return-by dates", open: "returns" },

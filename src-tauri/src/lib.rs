@@ -3,6 +3,7 @@
 mod capture;
 mod settings;
 mod sorting;
+mod home;
 mod lab;
 mod vault;
 mod vinyl;
@@ -124,6 +125,9 @@ pub fn run() {
             vinyl::vinyl_state,
             vinyl::vinyl_cover,
             vinyl::open_link,
+            home::weather_find,
+            home::weather_forecast,
+            home::calendar_fetch,
             lab::lab_services,
             lab::lab_status,
             vault::vault_list,

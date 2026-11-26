@@ -7,7 +7,7 @@ import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-dialog";
 import type { VaultPort } from "../services/ports";
 import type { ShotPort, SortSettings } from "../services/sortingService";
-import { mockShots, mockLab, mockVault, mockVinyl } from "./mock";
+import { mockShots, mockHome, mockLab, mockVault, mockVinyl } from "./mock";
 
 export interface AppSettings {
   /** Vault root, the folder holding `.obsidian`. Empty until chosen. */
@@ -15,6 +15,7 @@ export interface AppSettings {
   sorting: SortSettings;
   vinyl: VinylSettings;
   lab: LabSettings;
+  weather: WeatherSettings;
 }
 
 export interface VinylSettings {
@@ -26,6 +27,23 @@ export interface VinylSettings {
 
 /** The Homepage dashboard on the home network. Same shape as the Vinyl settings. */
 export type LabSettings = VinylSettings;
+/** Where the weather is for: a town typed in Settings and found once. */
+export interface WeatherSettings {
+  place: string;
+  /** What was found, like "Manchester, United Kingdom". Empty until a town is found. */
+  name: string;
+  lat: number;
+  lon: number;
+}
+export const defaultWeather = (): WeatherSettings => ({ place: "", name: "", lat: 0, lon: 0 });
+
+/** Weather and calendar feeds, fetched by the desktop side. Each returns the raw text. */
+export interface HomePort {
+  weatherFind(place: string): Promise<string>;
+  weatherForecast(lat: number, lon: number): Promise<string>;
+  calendarFetch(url: string): Promise<string>;
+}
+
 export const defaultLab = (): LabSettings => ({ address: "", separate: false });
 
 /** Homepage, read-only. */
@@ -58,6 +76,7 @@ export interface Shell {
   shots: ShotPort;
   vinyl: VinylPort;
   lab: LabPort;
+  home: HomePort;
   /** Windows' usual screenshot folder and a sensible place to sort them to. */
   sortDefaults(): Promise<[string, string]>;
   getSettings(): Promise<AppSettings>;
@@ -112,6 +131,12 @@ const tauriLab: LabPort = {
   open: (address) => invoke<void>("open_link", { address }),
 };
 
+const tauriHome: HomePort = {
+  weatherFind: (place) => invoke<string>("weather_find", { place }),
+  weatherForecast: (lat, lon) => invoke<string>("weather_forecast", { lat, lon }),
+  calendarFetch: (url) => invoke<string>("calendar_fetch", { url }),
+};
+
 export function createShell(): Shell {
   if (inTauri()) {
     return {
@@ -120,6 +145,7 @@ export function createShell(): Shell {
       shots: tauriShots,
       vinyl: tauriVinyl,
       lab: tauriLab,
+      home: tauriHome,
       sortDefaults: () => invoke<[string, string]>("sort_defaults"),
       getSettings: () => invoke<AppSettings>("get_settings"),
       setSettings: (next) => invoke<void>("set_settings", { next }),
@@ -135,13 +161,14 @@ export function createShell(): Shell {
       onCaptureSaved: (cb) => listen<{ path: string; copied: boolean }>("capture-saved", (e) => cb(e.payload.path)),
     };
   }
-  let settings: AppSettings = { vault: "demo", sorting: defaultSorting(), vinyl: defaultVinyl(), lab: { address: "http://homepage.local:3000", separate: false } };
+  let settings: AppSettings = { vault: "demo", sorting: defaultSorting(), vinyl: defaultVinyl(), lab: { address: "http://homepage.local:3000", separate: false }, weather: { place: "Manchester", name: "Manchester, United Kingdom", lat: 53.48, lon: -2.24 } };
   return {
     desktop: false,
     vault: mockVault(),
     shots: mockShots(),
     vinyl: mockVinyl(),
     lab: mockLab(),
+    home: mockHome(),
     sortDefaults: async () => ["C:\\Pictures\\Screenshots", "C:\\Pictures\\Sorted Screenshots"],
     getSettings: async () => settings,
     setSettings: async (next) => {

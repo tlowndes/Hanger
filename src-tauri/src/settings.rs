@@ -16,6 +16,8 @@ pub struct Settings {
     pub vinyl: Vinyl,
     /// The Homepage dashboard on the home network.
     pub lab: Lab,
+    /// Where the weather is for. Found once from a town name in Settings.
+    pub weather: Weather,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
@@ -25,6 +27,17 @@ pub struct Vinyl {
     pub address: String,
     /// True when the Vinyl tile opens the Pi's own page in the browser instead of Hanger's built-in one.
     pub separate: bool,
+}
+
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase", default)]
+pub struct Weather {
+    /// What was typed, like "Manchester".
+    pub place: String,
+    /// What the geocoder found, like "Manchester, United Kingdom". Empty until a town is found.
+    pub name: String,
+    pub lat: f64,
+    pub lon: f64,
 }
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq)]
