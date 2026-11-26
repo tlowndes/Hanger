@@ -1,7 +1,9 @@
 /** Cool-off and Refill notes, plus the Did I? history Refill counts from. */
 import * as C from "../core/cooloff";
 import * as D from "../core/didi";
+import * as PP from "../core/pocketpass";
 import * as R from "../core/refill";
+import * as RR from "../core/returns";
 import { addDays, dayText, parseDay } from "../core/md";
 import type { VaultPort } from "./ports";
 
@@ -37,4 +39,19 @@ export async function didiHistory(port: VaultPort, meds: R.Med[], today: string)
     if (await port.exists(D.logPath(day))) for (const stamp of D.stamps(await port.read(D.logPath(day)))) out.push({ day, stamp });
   }
   return out;
+}
+
+// ---- Return Radar and Pocket Pass ----
+
+export async function loadReturns(port: VaultPort): Promise<RR.Return[]> {
+  return RR.parse(await readOr(port, RR.NOTE, RR.STARTER));
+}
+export async function saveReturns(port: VaultPort, rs: RR.Return[]): Promise<void> {
+  await port.write(RR.NOTE, RR.render(await readOr(port, RR.NOTE, RR.STARTER), rs));
+}
+export async function loadCodes(port: VaultPort): Promise<PP.Code[]> {
+  return PP.parse(await readOr(port, PP.NOTE, PP.STARTER));
+}
+export async function saveCodes(port: VaultPort, cs: PP.Code[]): Promise<void> {
+  await port.write(PP.NOTE, PP.render(await readOr(port, PP.NOTE, PP.STARTER), cs));
 }

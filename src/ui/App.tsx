@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { createShell, type AppSettings } from "../platform/desktop";
 import { MODULES, moduleById, type ModuleId } from "../modules/registry";
 import { DidIPage } from "./DidIPage";
+import { PassPage } from "./PassPage";
+import { ReturnsPage } from "./ReturnsPage";
 import { CoolOffPage } from "./CoolOffPage";
 import { RefillPage } from "./RefillPage";
 import { useDayTools } from "./useDayTools";
@@ -12,7 +14,7 @@ import { SettingsPage } from "./SettingsPage";
 import { ToolsPage } from "./ToolsPage";
 import { useKits } from "./useKits";
 
-const TOOL_PAGES: ModuleId[] = ["didi", "cool", "refill"];
+const TOOL_PAGES: ModuleId[] = ["didi", "cool", "refill", "returns", "pass"];
 
 export function App() {
   const shell = useMemo(createShell, []);
@@ -89,6 +91,8 @@ function Frame(props: {
         {page === "overview" && <Overview kits={kitsState} go={setPage} />}
         {page === "tools" && <ToolsPage kits={kitsState} didi={didi} day={day} go={setPage} />}
         {page === "kits" && <KitsPage kits={kitsState} />}
+        {page === "returns" && <ReturnsPage day={day} back={() => setPage("tools")} />}
+        {page === "pass" && <PassPage day={day} back={() => setPage("tools")} />}
         {page === "cool" && <CoolOffPage day={day} back={() => setPage("tools")} />}
         {page === "refill" && <RefillPage day={day} back={() => setPage("tools")} />}
         {page === "didi" && <DidIPage didi={didi} back={() => setPage("tools")} />}

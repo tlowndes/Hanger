@@ -1,12 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import * as C from "../core/cooloff";
+import * as PP from "../core/pocketpass";
 import * as R from "../core/refill";
+import * as RR from "../core/returns";
 import * as S from "../services/dayService";
 import { today, type VaultPort } from "../services/ports";
 
 export interface DayState {
   cool: C.Item[];
   meds: R.Med[];
+  returns: RR.Return[];
+  codes: PP.Code[];
   /** Doses left per med name, counted from Did I? ticks. */
   left: Record<string, number>;
   loading: boolean;
@@ -14,6 +18,8 @@ export interface DayState {
   clearError(): void;
   saveCool(next: C.Item[]): Promise<void>;
   saveMeds(next: R.Med[]): Promise<void>;
+  saveReturns(next: RR.Return[]): Promise<void>;
+  saveCodes(next: PP.Code[]): Promise<void>;
   reload(): Promise<void>;
 }
 
@@ -22,6 +28,8 @@ const message = (e: unknown): string => (e instanceof Error ? e.message : typeof
 export function useDayTools(port: VaultPort): DayState {
   const [cool, setCool] = useState<C.Item[]>([]);
   const [meds, setMeds] = useState<R.Med[]>([]);
+  const [returns, setReturns] = useState<RR.Return[]>([]);
+  const [codes, setCodes] = useState<PP.Code[]>([]);
   const [left, setLeft] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,9 +48,11 @@ export function useDayTools(port: VaultPort): DayState {
   const reload = useCallback(async () => {
     setLoading(true);
     try {
-      const [c, m] = await Promise.all([S.loadCool(port), S.loadMeds(port)]);
+      const [c, m, r, k] = await Promise.all([S.loadCool(port), S.loadMeds(port), S.loadReturns(port), S.loadCodes(port)]);
       setCool(c);
       setMeds(m);
+      setReturns(r);
+      setCodes(k);
       await count(m);
       setError(null);
     } catch (e) {
@@ -59,6 +69,8 @@ export function useDayTools(port: VaultPort): DayState {
   return {
     cool,
     meds,
+    returns,
+    codes,
     left,
     loading,
     error,
@@ -71,6 +83,26 @@ export function useDayTools(port: VaultPort): DayState {
         await enqueue(() => S.saveCool(port, next));
       } catch (e) {
         setCool(prev);
+        setError(message(e));
+      }
+    },
+    saveReturns: async (next) => {
+      const prev = returns;
+      setReturns(next);
+      try {
+        await enqueue(() => S.saveReturns(port, next));
+      } catch (e) {
+        setReturns(prev);
+        setError(message(e));
+      }
+    },
+    saveCodes: async (next) => {
+      const prev = codes;
+      setCodes(next);
+      try {
+        await enqueue(() => S.saveCodes(port, next));
+      } catch (e) {
+        setCodes(prev);
         setError(message(e));
       }
     },

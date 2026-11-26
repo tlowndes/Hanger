@@ -8,7 +8,7 @@ Hanger reads and writes the same Obsidian notes as Flight Deck (in `99 - Meta`),
 
 - **Shell**: module rail, Overview start page, Settings (pick your vault).
 - **Kits**: item kits (Pocket, Backpack, custom) and packing lists (Packing, Car, Go bag, pouch). Repack, nights, tick, skip, "checked" dates.
-- **Tools**: the Hangar tools page. **Did I?**, **Cool-off** and **Refill** are built; the rest show as "soon". Price tracking in Cool-off stays on the phone for now.
+- **Tools**: the Hangar tools page. **Did I?**, **Cool-off**, **Refill**, **Return Radar** and **Pocket Pass** are built; the rest show as "soon". Price tracking in Cool-off stays on the phone for now.
 
 Next: Capture, Screenshot Sorting, Overview widgets, Vinyl Pi, Lab, more Tools. See the build plan.
 

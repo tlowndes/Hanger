@@ -2,7 +2,7 @@
 :root {
   --bg: #13111a; --rail: #100e17; --side: #171420; --surface: #1d1a28; --surface2: #262236; --outline: #37314d;
   --text: #ece9f6; --muted: #9a94b3; --warn: #ff8a80; --ok: #5fd49a;
-  --hub: #8b6cff; --tools: #c4b5fd; --didi: #7dd3a8; --cool: #7cc4f0; --refill: #f08fa8; --kit: #f5c26b;
+  --hub: #8b6cff; --tools: #c4b5fd; --didi: #7dd3a8; --cool: #7cc4f0; --refill: #f08fa8; --returns: #f0a86c; --pass: #a3e0b8; --kit: #f5c26b;
   --a: var(--hub);
   --sans: "Segoe UI", system-ui, -apple-system, sans-serif;
   color-scheme: dark;
@@ -130,3 +130,4 @@ h2 { font-size: 15px; padding: 0 10px 12px; }
 .row .grow { flex: 1; min-width: 180px; display: flex; flex-direction: column; gap: 2px; }
 .row small { color: var(--muted); font-size: 12px; } .row a { color: var(--a); }
 .dadd select { background: var(--surface); border: 1px solid var(--surface2); border-radius: 999px; padding: 7px 12px; }
+.mono { font-variant-numeric: tabular-nums; letter-spacing: 0.4px; }
