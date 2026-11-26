@@ -3,12 +3,26 @@
 mod settings;
 mod vault;
 
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Mutex;
 
-use tauri::{AppHandle, Manager, State};
+use tauri::{AppHandle, Emitter, Manager, State};
+use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
 
 pub struct AppState {
     pub settings: Mutex<settings::Settings>,
+    /// True when Ctrl Shift Space was free to claim as the system-wide Quick capture key.
+    pub hotkey: AtomicBool,
+}
+
+/// Ctrl Shift Space, from any app.
+fn quick_capture_key() -> Shortcut {
+    Shortcut::new(Some(Modifiers::CONTROL | Modifiers::SHIFT), Code::Space)
+}
+
+#[tauri::command]
+fn hotkey_ready(state: State<'_, AppState>) -> bool {
+    state.hotkey.load(Ordering::Relaxed)
 }
 
 #[tauri::command]
@@ -38,14 +52,32 @@ pub fn run() {
             }
         }))
         .plugin(tauri_plugin_dialog::init())
+        // Quick capture: bring Hanger forward and tell the page to open the add box.
+        .plugin(
+            tauri_plugin_global_shortcut::Builder::new()
+                .with_handler(|app, shortcut, event| {
+                    if shortcut == &quick_capture_key() && event.state() == ShortcutState::Pressed {
+                        if let Some(w) = app.get_webview_window("main") {
+                            let _ = w.unminimize();
+                            let _ = w.show();
+                            let _ = w.set_focus();
+                        }
+                        let _ = app.emit("quick-capture", ());
+                    }
+                })
+                .build(),
+        )
         .setup(|app| {
             let s = settings::load(app.handle());
-            app.manage(AppState { settings: Mutex::new(s) });
+            // Another app may already own the key. Hanger still runs; Settings says so.
+            let claimed = app.global_shortcut().register(quick_capture_key()).is_ok();
+            app.manage(AppState { settings: Mutex::new(s), hotkey: AtomicBool::new(claimed) });
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
             get_settings,
             set_settings,
+            hotkey_ready,
             vault::vault_list,
             vault::vault_read,
             vault::vault_write,

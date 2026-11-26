@@ -3,6 +3,7 @@
  * can be worked on anywhere.
  */
 import { invoke, isTauri } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-dialog";
 import type { VaultPort } from "../services/ports";
 import { mockVault } from "./mock";
@@ -18,6 +19,10 @@ export interface Shell {
   getSettings(): Promise<AppSettings>;
   setSettings(next: AppSettings): Promise<void>;
   pickFolder(): Promise<string | null>;
+  /** Runs `cb` when Ctrl Shift Space is pressed anywhere. Returns a function that stops listening. */
+  onQuickCapture(cb: () => void): Promise<() => void>;
+  /** Whether Hanger could claim Ctrl Shift Space system-wide (null in the browser preview). */
+  hotkeyReady(): Promise<boolean | null>;
 }
 
 const inTauri = (): boolean => {
@@ -47,6 +52,8 @@ export function createShell(): Shell {
         const picked = await open({ directory: true, multiple: false, title: "Pick your Obsidian vault" });
         return typeof picked === "string" ? picked : null;
       },
+      onQuickCapture: (cb) => listen("quick-capture", () => cb()),
+      hotkeyReady: () => invoke<boolean>("hotkey_ready"),
     };
   }
   let settings: AppSettings = { vault: "demo" };
@@ -58,5 +65,7 @@ export function createShell(): Shell {
       settings = next;
     },
     pickFolder: async () => "demo",
+    onQuickCapture: async () => () => undefined,
+    hotkeyReady: async () => null,
   };
 }

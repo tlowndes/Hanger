@@ -1,4 +1,4 @@
-//! Reading and writing notes, only inside `<vault>/99 - Meta`.
+//! Reading and writing notes, only inside `<vault>/99 - Meta`, plus the one Quick Task note Tasks works on.
 //!
 //! Writes go to a temp file beside the note, are swapped in, then read back, so Obsidian Sync never picks up
 //! half a note (the same rule as Flight Deck). Paths from the UI are relative to the vault root, with `/`.
@@ -9,11 +9,13 @@ use tauri::State;
 
 use crate::AppState;
 
-/// The only folder inside the vault that Hanger may touch.
+/// The folder inside the vault that Hanger may touch.
 pub const META: &str = "99 - Meta";
+/// The one note outside it that Hanger may touch: Flight Deck's Quick Task list.
+pub const QUICK_TASK: &str = "01 - Inbox/⚡ Quick Task.md";
 
 /// Turns a vault-relative path from the UI into a real path, or says why it isn't allowed.
-/// Allowed: relative, no `..`, no drive or root, and inside `99 - Meta`.
+/// Allowed: relative, no `..`, no drive or root, and either inside `99 - Meta` or exactly the Quick Task note.
 pub fn resolve(vault: &str, rel: &str) -> Result<PathBuf, String> {
     if vault.trim().is_empty() {
         return Err("Pick your Obsidian vault in Settings first.".into());
@@ -24,8 +26,9 @@ pub fn resolve(vault: &str, rel: &str) -> Result<PathBuf, String> {
         return Err(format!("Hanger can't use the path '{rel}'."));
     }
     let first = rel_path.components().next().map(|c| c.as_os_str().to_string_lossy().to_lowercase());
-    if first.as_deref() != Some(&META.to_lowercase()) {
-        return Err(format!("Hanger only reads and writes inside {META}."));
+    let is_quick = rel.replace('\\', "/").to_lowercase() == QUICK_TASK.to_lowercase();
+    if first.as_deref() != Some(&META.to_lowercase()) && !is_quick {
+        return Err(format!("Hanger only reads and writes inside {META} and the Quick Task note."));
     }
     Ok(Path::new(vault).join(rel_path))
 }
@@ -110,8 +113,18 @@ mod tests {
     }
 
     #[test]
+    fn allows_the_quick_task_note_outside_meta() {
+        let p = resolve("D:/Vault", "01 - Inbox/⚡ Quick Task.md").unwrap();
+        assert!(p.to_string_lossy().replace('\\', "/").ends_with("Vault/01 - Inbox/⚡ Quick Task.md"));
+        assert!(resolve("D:/Vault", "01 - inbox/⚡ quick task.md").is_ok());
+    }
+
+    #[test]
     fn refuses_other_folders() {
         assert!(resolve("D:/Vault", "01 - Inbox/Quick Task.md").is_err());
+        assert!(resolve("D:/Vault", "01 - Inbox/⚡ Quick Task.md.bak").is_err());
+        assert!(resolve("D:/Vault", "01 - Inbox/other.md").is_err());
+        assert!(resolve("D:/Vault", "01 - Inbox/../99 - Meta/x.md").is_err());
         assert!(resolve("D:/Vault", "99 - Meta Extra/x.md").is_err());
     }
 

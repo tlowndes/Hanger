@@ -80,8 +80,19 @@ function Frame(props: {
       }
     };
     window.addEventListener("keydown", on);
-    return () => window.removeEventListener("keydown", on);
-  }, [setPage]);
+    // The same key from any other app, via the desktop shell.
+    let stop: (() => void) | undefined;
+    let gone = false;
+    void shell.onQuickCapture(() => {
+      setPage("tasks");
+      setFocusKey((k) => k + 1);
+    }).then((off) => (gone ? off() : (stop = off)));
+    return () => {
+      gone = true;
+      stop?.();
+      window.removeEventListener("keydown", on);
+    };
+  }, [setPage, shell]);
   const railOn = (id: ModuleId) => page === id || (id === "tools" && TOOL_PAGES.includes(page));
 
   return (
