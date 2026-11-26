@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { createShell, defaultSorting, type AppSettings } from "../platform/desktop";
+import { createShell, defaultSorting, defaultVinyl, type AppSettings } from "../platform/desktop";
 import { MODULES, moduleById, type ModuleId } from "../modules/registry";
 import { DidIPage } from "./DidIPage";
 import { SeenPage } from "./SeenPage";
@@ -8,6 +8,8 @@ import { ReturnsPage } from "./ReturnsPage";
 import { CoolOffPage } from "./CoolOffPage";
 import { RefillPage } from "./RefillPage";
 import { SortingPage } from "./SortingPage";
+import { VinylPage } from "./VinylPage";
+import { useVinyl } from "./useVinyl";
 import { useSorting } from "./useSorting";
 import { TasksPage } from "./TasksPage";
 import { useTasks } from "./useTasks";
@@ -76,6 +78,7 @@ function Frame(props: {
     await shell.setSettings(merged);
     props.setSettings(merged);
   });
+  const vinyl = useVinyl(shell, settings.vinyl ?? defaultVinyl());
   const [focusKey, setFocusKey] = useState(0);
   // Ctrl Shift Space: jump to Tasks with the add box ready.
   useEffect(() => {
@@ -100,6 +103,11 @@ function Frame(props: {
       window.removeEventListener("keydown", on);
     };
   }, [setPage, shell]);
+  // "Separate" sends the Vinyl tile to the Pi's own page instead of the built-in one.
+  const goTo = (id: ModuleId) => {
+    if (id === "vinyl" && vinyl.settings.separate) void vinyl.open();
+    else setPage(id);
+  };
   const railOn = (id: ModuleId) => page === id || (id === "tools" && TOOL_PAGES.includes(page));
 
   return (
@@ -107,7 +115,7 @@ function Frame(props: {
       <nav className="rail" aria-label="Modules">
         <div className="hook" aria-hidden />
         {MODULES.map((m) => (
-          <button key={m.id} className={`ico${railOn(m.id) ? " on" : ""}`} style={{ ["--c" as string]: m.accent }} title={m.name} aria-label={m.name} aria-current={railOn(m.id)} onClick={() => setPage(m.id)}>
+          <button key={m.id} className={`ico${railOn(m.id) ? " on" : ""}`} style={{ ["--c" as string]: m.accent }} title={m.name} aria-label={m.name} aria-current={railOn(m.id)} onClick={() => goTo(m.id)}>
             {m.glyph}
           </button>
         ))}
@@ -123,8 +131,9 @@ function Frame(props: {
             <button className="chip" onClick={kitsState.clearError}>Dismiss</button>
           </div>
         )}
-        {page === "overview" && <Overview data={{ kits: kitsState, didi, day, tasks, sorting }} go={setPage} />}
+        {page === "overview" && <Overview data={{ kits: kitsState, didi, day, tasks, sorting, vinyl }} go={goTo} />}
         {page === "sorting" && <SortingPage shell={shell} sorting={sorting} />}
+        {page === "vinyl" && <VinylPage vinyl={vinyl} goSettings={() => setPage("settings")} />}
         {page === "tasks" && <TasksPage tasks={tasks} focusKey={focusKey} />}
         {page === "tools" && <ToolsPage kits={kitsState} didi={didi} day={day} go={setPage} />}
         {page === "kits" && <KitsPage kits={kitsState} />}

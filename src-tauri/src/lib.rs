@@ -4,6 +4,7 @@ mod capture;
 mod settings;
 mod sorting;
 mod vault;
+mod vinyl;
 
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Mutex;
@@ -119,6 +120,9 @@ pub fn run() {
             sorting::sort_ocr,
             sorting::sort_thumb,
             sorting::sort_move,
+            vinyl::vinyl_state,
+            vinyl::vinyl_cover,
+            vinyl::vinyl_open,
             vault::vault_list,
             vault::vault_read,
             vault::vault_write,

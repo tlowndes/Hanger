@@ -12,6 +12,23 @@ pub struct Settings {
     pub vault: String,
     /// Screenshot sorting. Folders are per PC, so they live here and not in the vault.
     pub sorting: Sorting,
+    /// The Vinyl Pi on the home network.
+    pub vinyl: Vinyl,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase", default)]
+pub struct Vinyl {
+    /// Where the Pi answers, usually `http://vinyl.local`.
+    pub address: String,
+    /// True when the Vinyl tile opens the Pi's own page in the browser instead of Hanger's built-in one.
+    pub separate: bool,
+}
+
+impl Default for Vinyl {
+    fn default() -> Self {
+        Vinyl { address: "http://vinyl.local".into(), separate: false }
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]

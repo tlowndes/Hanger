@@ -136,3 +136,20 @@ export function mockShots(): ShotPort {
     },
   };
 }
+
+/** A pretend Pi for the browser preview. */
+export function mockVinyl(): import("./desktop").VinylPort {
+  const now = {
+    title: "Rumours", artist: "Fleetwood Mac", year: "1977", cover: null, side: "B", sides: ["A", "B"],
+    tracks: [
+      { number: "A1", title: "Second Hand News", length: "2:56" }, { number: "A2", title: "Dreams", length: "4:17" },
+      { number: "B1", title: "Go Your Own Way", length: "3:38" }, { number: "B2", title: "Songbird", length: "3:20" }, { number: "B3", title: "The Chain", length: "4:28" },
+    ],
+    playing: { number: "B2", since: 0 },
+  };
+  return {
+    state: async () => JSON.stringify({ now, history: [{ title: "Blue", artist: "Joni Mitchell", year: "1971" }, { title: "Abbey Road", artist: "The Beatles", year: "1969" }], spins: 12 }),
+    cover: async () => { throw new Error("No cover in the preview."); },
+    open: async () => { throw new Error("Opening the player works in the Windows app."); },
+  };
+}
