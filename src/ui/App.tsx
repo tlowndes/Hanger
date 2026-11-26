@@ -7,6 +7,8 @@ import { PassPage } from "./PassPage";
 import { ReturnsPage } from "./ReturnsPage";
 import { CoolOffPage } from "./CoolOffPage";
 import { RefillPage } from "./RefillPage";
+import { TasksPage } from "./TasksPage";
+import { useTasks } from "./useTasks";
 import { useDayTools } from "./useDayTools";
 import { useDidI } from "./useDidI";
 import { KitsPage } from "./KitsPage";
@@ -66,6 +68,20 @@ function Frame(props: {
   const active = moduleById(page);
   const didi = useDidI(shell.vault);
   const day = useDayTools(shell.vault);
+  const tasks = useTasks(shell.vault);
+  const [focusKey, setFocusKey] = useState(0);
+  // Ctrl Shift Space: jump to Tasks with the add box ready.
+  useEffect(() => {
+    const on = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.code === "Space") {
+        e.preventDefault();
+        setPage("tasks");
+        setFocusKey((k) => k + 1);
+      }
+    };
+    window.addEventListener("keydown", on);
+    return () => window.removeEventListener("keydown", on);
+  }, [setPage]);
   const railOn = (id: ModuleId) => page === id || (id === "tools" && TOOL_PAGES.includes(page));
 
   return (
@@ -89,7 +105,8 @@ function Frame(props: {
             <button className="chip" onClick={kitsState.clearError}>Dismiss</button>
           </div>
         )}
-        {page === "overview" && <Overview data={{ kits: kitsState, didi, day }} go={setPage} />}
+        {page === "overview" && <Overview data={{ kits: kitsState, didi, day, tasks }} go={setPage} />}
+        {page === "tasks" && <TasksPage tasks={tasks} focusKey={focusKey} />}
         {page === "tools" && <ToolsPage kits={kitsState} didi={didi} day={day} go={setPage} />}
         {page === "kits" && <KitsPage kits={kitsState} />}
         {page === "returns" && <ReturnsPage day={day} back={() => setPage("tools")} />}

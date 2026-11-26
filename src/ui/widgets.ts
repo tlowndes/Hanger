@@ -7,12 +7,14 @@ import type { ModuleId } from "../modules/registry";
 import { today } from "../services/ports";
 import type { DayState } from "./useDayTools";
 import type { DidIState } from "./useDidI";
+import type { TasksState } from "./useTasks";
 import type { KitsState } from "./useKits";
 
 export interface Data {
   kits: KitsState;
   didi: DidIState;
   day: DayState;
+  tasks: TasksState;
 }
 /** What a widget shows. `lines` is the list a Tall widget has room for. */
 export interface View {
@@ -29,13 +31,14 @@ export interface View {
 export const DEFS: WidgetDef[] = [
   { id: "packing", title: "Packing", size: "M" },
   { id: "checks", title: "Checks due", size: "S" },
+  { id: "tasks", title: "Tasks", size: "M" },
   { id: "didi", title: "Did I?", size: "S" },
   { id: "cool", title: "Cool-off", size: "S" },
   { id: "refill", title: "Refill", size: "S" },
   { id: "returns", title: "Return Radar", size: "M" },
   { id: "seen", title: "Last Seen", size: "S" },
 ];
-export const DEFAULT_ON = ["packing", "didi", "checks", "refill", "returns", "cool", "seen"];
+export const DEFAULT_ON = ["packing", "tasks", "didi", "checks", "refill", "returns", "cool", "seen"];
 
 export function view(id: string, d: Data): View | null {
   const t = today();
@@ -50,6 +53,12 @@ export function view(id: string, d: Data): View | null {
         note: l && c ? `${l.nights} night${l.nights === 1 ? "" : "s"} · ${c.full ? "all packed" : "still to pack"}` : "No packing list yet",
         lines: [], meter: c && c.total ? c.done / c.total : undefined,
       };
+    }
+    case "tasks": {
+      const open = d.tasks.open;
+      const dueNow = open.filter((x) => x.due !== null && x.due <= t);
+      const next = dueNow[0] ?? open[0];
+      return { eyebrow: "Tasks", accent: "var(--task)", open: "tasks", big: dueNow.length ? `${dueNow.length} due` : String(open.length), note: next ? next.text : "Nothing to do", lines: open.map((x) => (x.due ? `${x.text} · ${x.due}` : x.text)) };
     }
     case "checks": {
       const cs = d.kits.lists.filter((l) => l.kind === "check" && due(l, t));

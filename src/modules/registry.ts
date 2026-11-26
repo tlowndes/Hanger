@@ -2,7 +2,7 @@
  * Hanger's modules. Each one gets a tile on the rail. A module is a page plus the colour it keeps; the shared
  * look (graphite surfaces, soft shapes, one accent per module) comes from styles.css.
  */
-export type ModuleId = "overview" | "tools" | "kits" | "didi" | "cool" | "refill" | "returns" | "pass" | "seen" | "settings";
+export type ModuleId = "overview" | "tasks" | "tools" | "kits" | "didi" | "cool" | "refill" | "returns" | "pass" | "seen" | "settings";
 
 export interface ModuleDef {
   id: ModuleId;
@@ -16,6 +16,7 @@ export interface ModuleDef {
 
 export const MODULES: ModuleDef[] = [
   { id: "overview", name: "Overview", glyph: "H", accent: "var(--hub)", blurb: "Your day at a glance" },
+  { id: "tasks", name: "Tasks", glyph: "☑", accent: "var(--task)", blurb: "Quick Task and Quick capture" },
   { id: "tools", name: "Tools", glyph: "T", accent: "var(--tools)", blurb: "Small tools for getting out the door" },
   { id: "kits", name: "Kits", glyph: "K", accent: "var(--kit)", blurb: "What to take, and packing lists" },
 ];
