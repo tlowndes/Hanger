@@ -30,6 +30,10 @@ export interface Shell {
   onQuickCapture(cb: () => void): Promise<() => void>;
   /** Whether Hanger could claim Ctrl Shift Space system-wide (null in the browser preview). */
   hotkeyReady(): Promise<boolean | null>;
+  /** Opens the Windows snipping overlay. */
+  snip(): Promise<void>;
+  /** Whether Hanger could claim Ctrl Shift 4 for snipping (null in the browser preview). */
+  snipHotkeyReady(): Promise<boolean | null>;
 }
 
 const inTauri = (): boolean => {
@@ -70,6 +74,8 @@ export function createShell(): Shell {
       },
       onQuickCapture: (cb) => listen("quick-capture", () => cb()),
       hotkeyReady: () => invoke<boolean>("hotkey_ready"),
+      snip: () => invoke<void>("snip"),
+      snipHotkeyReady: () => invoke<boolean>("snip_hotkey_ready"),
     };
   }
   let settings: AppSettings = { vault: "demo", sorting: defaultSorting() };
@@ -85,5 +91,9 @@ export function createShell(): Shell {
     pickFolder: async () => "demo",
     onQuickCapture: async () => () => undefined,
     hotkeyReady: async () => null,
+    snip: async () => {
+      throw new Error("Snipping only works in the desktop app.");
+    },
+    snipHotkeyReady: async () => null,
   };
 }

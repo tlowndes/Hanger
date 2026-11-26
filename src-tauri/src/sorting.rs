@@ -81,6 +81,31 @@ fn check_in_roots(state: &State<'_, AppState>, path: &str) -> Result<(), String>
     }
 }
 
+/// Opens the Windows snipping overlay (the same as Win+Shift+S). On Windows 11 the Snipping Tool saves each snip to
+/// Pictures\Screenshots, which is where Sorting looks.
+pub fn open_snip() -> Result<(), String> {
+    #[cfg(windows)]
+    {
+        use std::os::windows::process::CommandExt;
+        const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+        std::process::Command::new("explorer.exe")
+            .arg("ms-screenclip:")
+            .creation_flags(CREATE_NO_WINDOW)
+            .spawn()
+            .map(|_| ())
+            .map_err(|e| format!("Couldn't open the Snipping Tool: {e}"))
+    }
+    #[cfg(not(windows))]
+    {
+        Err("Snipping is a Windows feature.".into())
+    }
+}
+
+#[tauri::command]
+pub fn snip() -> Result<(), String> {
+    open_snip()
+}
+
 /// The folders Windows normally uses, as a starting point for Settings.
 #[tauri::command]
 pub fn sort_defaults() -> (String, String) {
