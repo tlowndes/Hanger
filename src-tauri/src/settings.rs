@@ -14,6 +14,8 @@ pub struct Settings {
     pub sorting: Sorting,
     /// The Vinyl Pi on the home network.
     pub vinyl: Vinyl,
+    /// The Homepage dashboard on the home network.
+    pub lab: Lab,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
@@ -22,6 +24,15 @@ pub struct Vinyl {
     /// Where the Pi answers, usually `http://vinyl.local`.
     pub address: String,
     /// True when the Vinyl tile opens the Pi's own page in the browser instead of Hanger's built-in one.
+    pub separate: bool,
+}
+
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase", default)]
+pub struct Lab {
+    /// Where Homepage answers, like `http://192.168.1.20:3000`. Empty until set.
+    pub address: String,
+    /// True when the Lab tile opens Homepage in the browser instead of Hanger's built-in page.
     pub separate: bool,
 }
 

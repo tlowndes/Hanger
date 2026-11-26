@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { createShell, defaultSorting, defaultVinyl, type AppSettings } from "../platform/desktop";
+import { createShell, defaultSorting, defaultVinyl, defaultLab, type AppSettings } from "../platform/desktop";
 import { MODULES, moduleById, type ModuleId } from "../modules/registry";
 import { DidIPage } from "./DidIPage";
 import { SeenPage } from "./SeenPage";
@@ -10,6 +10,8 @@ import { RefillPage } from "./RefillPage";
 import { SortingPage } from "./SortingPage";
 import { VinylPage } from "./VinylPage";
 import { useVinyl } from "./useVinyl";
+import { LabPage } from "./LabPage";
+import { useLab } from "./useLab";
 import { useSorting } from "./useSorting";
 import { TasksPage } from "./TasksPage";
 import { useTasks } from "./useTasks";
@@ -79,6 +81,7 @@ function Frame(props: {
     props.setSettings(merged);
   });
   const vinyl = useVinyl(shell, settings.vinyl ?? defaultVinyl());
+  const lab = useLab(shell, settings.lab ?? defaultLab());
   const [focusKey, setFocusKey] = useState(0);
   // Ctrl Shift Space: jump to Tasks with the add box ready.
   useEffect(() => {
@@ -106,6 +109,7 @@ function Frame(props: {
   // "Separate" sends the Vinyl tile to the Pi's own page instead of the built-in one.
   const goTo = (id: ModuleId) => {
     if (id === "vinyl" && vinyl.settings.separate) void vinyl.open();
+    else if (id === "lab" && lab.settings.separate) void lab.open();
     else setPage(id);
   };
   const railOn = (id: ModuleId) => page === id || (id === "tools" && TOOL_PAGES.includes(page));
@@ -131,9 +135,10 @@ function Frame(props: {
             <button className="chip" onClick={kitsState.clearError}>Dismiss</button>
           </div>
         )}
-        {page === "overview" && <Overview data={{ kits: kitsState, didi, day, tasks, sorting, vinyl }} go={goTo} />}
+        {page === "overview" && <Overview data={{ kits: kitsState, didi, day, tasks, sorting, vinyl, lab }} go={goTo} />}
         {page === "sorting" && <SortingPage shell={shell} sorting={sorting} />}
         {page === "vinyl" && <VinylPage vinyl={vinyl} goSettings={() => setPage("settings")} />}
+        {page === "lab" && <LabPage lab={lab} goSettings={() => setPage("settings")} />}
         {page === "tasks" && <TasksPage tasks={tasks} focusKey={focusKey} />}
         {page === "tools" && <ToolsPage kits={kitsState} didi={didi} day={day} go={setPage} />}
         {page === "kits" && <KitsPage kits={kitsState} />}

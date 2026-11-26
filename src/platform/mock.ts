@@ -153,3 +153,16 @@ export function mockVinyl(): import("./desktop").VinylPort {
     open: async () => { throw new Error("Opening the player works in the Windows app."); },
   };
 }
+
+/** A pretend Homepage for the browser preview. */
+export function mockLab(): import("./desktop").LabPort {
+  const groups = [
+    { name: "Network", services: [{ name: "Pi-hole", description: "DNS and ad blocking" }, { name: "Router", description: "Gateway" }] },
+    { name: "Media", services: [{ name: "Vinyl Pi", description: "Turntable stream" }, { name: "Plex", description: "Films and TV" }] },
+  ];
+  return {
+    services: async () => JSON.stringify(groups),
+    status: async (_a, _g, service) => JSON.stringify(service === "Plex" ? { status: 502 } : { status: 200, latency: 14 }),
+    open: async () => { throw new Error("Opening Homepage works in the Windows app."); },
+  };
+}

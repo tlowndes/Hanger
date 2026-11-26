@@ -1,18 +1,10 @@
 import { useEffect, useState } from "react";
 import { address as tidy } from "../core/vinyl";
-import { defaultVinyl, type AppSettings, type Shell } from "../platform/desktop";
+import { defaultLab, defaultVinyl, type AppSettings, type Shell } from "../platform/desktop";
 
 export function SettingsPage({ shell, settings, onChange, onReload }: { shell: Shell; settings: AppSettings; onChange(s: AppSettings): void; onReload(): Promise<void> }) {
   const [hotkey, setHotkey] = useState<boolean | null>(null);
   const [capKeys, setCapKeys] = useState<boolean | null>(null);
-  const vinyl = settings.vinyl ?? defaultVinyl();
-  const [addr, setAddr] = useState(vinyl.address);
-  const bad = addr.trim() !== "" && tidy(addr) === null;
-  const saveVinyl = async (patch: Partial<typeof vinyl>) => {
-    const next = { ...settings, vinyl: { ...vinyl, ...patch } };
-    await shell.setSettings(next);
-    onChange(next);
-  };
   useEffect(() => {
     void shell.hotkeyReady().then(setHotkey).catch(() => setHotkey(null));
     void shell.captureHotkeysReady().then(setCapKeys).catch(() => setCapKeys(null));
@@ -64,32 +56,49 @@ export function SettingsPage({ shell, settings, onChange, onReload }: { shell: S
           </div>
         </div>
       </section>
-      <section className="panel" style={{ marginTop: 12 }}>
-        <div className="row">
-          <div className="grow">
-            <b>Vinyl Pi address</b>
-            <small className="muted">{bad ? "Use a name or IP like vinyl.local or 192.168.1.20 (plain http, no path)." : "Where your Pi answers on the home network."}</small>
-          </div>
-          <input
-            aria-label="Vinyl Pi address"
-            value={addr}
-            onChange={(e) => setAddr(e.target.value)}
-            onBlur={() => {
-              const t = tidy(addr);
-              if (t && t !== vinyl.address) void saveVinyl({ address: t });
-              if (t) setAddr(t);
-            }}
-          />
-        </div>
-        <div className="row">
-          <div className="grow">
-            <b>Vinyl Pi lives</b>
-            <small className="muted">{vinyl.separate ? "Separate: the Vinyl tile opens the Pi's own player page in your browser." : "Built in: the Vinyl tile shows what's playing inside Hanger."}</small>
-          </div>
-          <button className={vinyl.separate ? "chip" : "btn"} onClick={() => void saveVinyl({ separate: false })} aria-pressed={!vinyl.separate}>Built in</button>
-          <button className={vinyl.separate ? "btn" : "chip"} onClick={() => void saveVinyl({ separate: true })} aria-pressed={vinyl.separate}>Separate</button>
-        </div>
-      </section>
+      <HomeLink shell={shell} settings={settings} onChange={onChange} id="vinyl" name="Vinyl Pi" what="Pi" hint="vinyl.local or 192.168.1.20" built="shows what's playing inside Hanger" page="the Pi's own player page" />
+      <HomeLink shell={shell} settings={settings} onChange={onChange} id="lab" name="Lab" what="Homepage" hint="192.168.1.20:3000" built="shows your services and their up or down state inside Hanger" page="Homepage" />
     </div>
+  );
+}
+
+/** An address on the home network, plus the Built in / Separate switch for the module that reads it. */
+function HomeLink({ shell, settings, onChange, id, name, what, hint, built, page }: { shell: Shell; settings: AppSettings; onChange(s: AppSettings): void; id: "vinyl" | "lab"; name: string; what: string; hint: string; built: string; page: string }) {
+  const cur = settings[id] ?? (id === "vinyl" ? defaultVinyl() : defaultLab());
+  const [addr, setAddr] = useState(cur.address);
+  const bad = addr.trim() !== "" && tidy(addr) === null;
+  const save = async (patch: Partial<typeof cur>) => {
+    const next = { ...settings, [id]: { ...cur, ...patch } };
+    await shell.setSettings(next);
+    onChange(next);
+  };
+  return (
+    <section className="panel" style={{ marginTop: 12 }}>
+      <div className="row">
+        <div className="grow">
+          <b>{name} address</b>
+          <small className="muted">{bad ? `Use a name or IP like ${hint} (plain http, no path).` : `Where ${what} answers on the home network.`}</small>
+        </div>
+        <input
+          aria-label={`${name} address`}
+          value={addr}
+          placeholder={hint}
+          onChange={(e) => setAddr(e.target.value)}
+          onBlur={() => {
+            const t = tidy(addr);
+            if (t && t !== cur.address) void save({ address: t });
+            if (t) setAddr(t);
+          }}
+        />
+      </div>
+      <div className="row">
+        <div className="grow">
+          <b>{name} lives</b>
+          <small className="muted">{cur.separate ? `Separate: the ${name} tile opens ${page} in your browser.` : `Built in: the ${name} tile ${built}.`}</small>
+        </div>
+        <button className={cur.separate ? "chip" : "btn"} onClick={() => void save({ separate: false })} aria-pressed={!cur.separate}>Built in</button>
+        <button className={cur.separate ? "btn" : "chip"} onClick={() => void save({ separate: true })} aria-pressed={cur.separate}>Separate</button>
+      </div>
+    </section>
   );
 }
