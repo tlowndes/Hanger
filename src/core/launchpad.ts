@@ -42,14 +42,21 @@ export interface Item {
   reason: string | null;
 }
 export type Kind = "rain" | "cold" | "event" | "long";
+/** Where a rule's items go: the bag (Launch Pad and Night Pad), on charge, or to wear (Night Pad only). */
+export type Group = "bag" | "charge" | "wear";
 export interface Rule {
   kind: Kind;
   arg: string;
   items: Item[];
+  group: Group;
 }
 export interface Kit {
   always: Item[];
+  /** Rules under When (bag), Charge or Wear. */
   rules: Rule[];
+  /** Plain items under Charge and Wear. */
+  charge: Item[];
+  wear: Item[];
 }
 export interface Trip {
   title: string;
@@ -87,12 +94,12 @@ export function rule(body: string): Rule | null {
     .slice(body.indexOf("·") + 1)
     .split(",")
     .flatMap((s) => item(s, reason) ?? []);
-  return items.length ? { kind: word, arg, items } : null;
+  return items.length ? { kind: word, arg, items, group: "bag" } : null;
 }
 
 /** Reads the Always and When sections; Charge and Wear belong to Night Pad and are left alone. */
 export function parse(text: string): Kit {
-  const kit: Kit = { always: [], rules: [] };
+  const kit: Kit = { always: [], rules: [], charge: [], wear: [] };
   let section = "";
   for (const line of text.split("\n")) {
     if (line.startsWith("## ")) {
@@ -107,6 +114,15 @@ export function parse(text: string): Kit {
     } else if (section === "when") {
       const r = rule(body);
       if (r) kit.rules.push(r);
+    } else if (section === "charge" || section === "wear") {
+      // A line with a · is a rule for that group; anything else is a plain item.
+      if (body.includes("·")) {
+        const r = rule(body);
+        if (r) kit.rules.push({ ...r, group: section });
+      } else {
+        const it = item(body);
+        if (it) kit[section].push(it);
+      }
     }
   }
   return kit;
@@ -136,7 +152,11 @@ export function applies(r: Rule, t: Trip): boolean {
 
 /** Today's list: Always first, then what the rules add. Nothing appears twice. */
 export function itemsFor(kit: Kit, trip: Trip): Item[] {
-  const all = [...kit.always, ...kit.rules.filter((r) => applies(r, trip)).flatMap((r) => r.items)];
+  const all = [...kit.always, ...kit.rules.filter((r) => r.group === "bag" && applies(r, trip)).flatMap((r) => r.items)];
+  return dedupe(all);
+}
+
+function dedupe<T extends { name: string }>(all: T[]): T[] {
   const seen = new Set<string>();
   return all.filter((i) => {
     const k = i.name.toLowerCase();
@@ -183,4 +203,39 @@ export function tripFrom(event: { title: string; start: string; end: string } | 
     if (mins !== null && from !== null && event.end.slice(0, 10) === event.start.slice(0, 10) && mins > from) t.hours = Math.round(((mins - from) / 60) * 2) / 2;
   }
   return t;
+}
+
+/** One line on the Night Pad list. */
+export interface NightItem {
+  group: Group;
+  item: Item;
+}
+export const READY_MINUTES = 60;
+
+/**
+ * Tonight's list for tomorrow: what to charge, then what to pack and wear. With nothing planned tomorrow it's only
+ * the Charge group. The bag holds only the rule extras (Launch Pad's Always items are the morning's job).
+ */
+export function nightItems(kit: Kit, trip: Trip): NightItem[] {
+  const ruled = (g: Group): Item[] => kit.rules.filter((r) => r.group === g && applies(r, trip)).flatMap((r) => r.items);
+  const out: NightItem[] = [...kit.charge, ...ruled("charge")].map((item) => ({ group: "charge", item }));
+  if (trip.title) {
+    out.push(...ruled("bag").map((item): NightItem => ({ group: "bag", item })));
+    out.push(...[...kit.wear, ...ruled("wear")].map((item): NightItem => ({ group: "wear", item })));
+  }
+  const seen = new Set<string>();
+  return out.filter((n) => {
+    const k = n.item.name.toLowerCase();
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+}
+
+/** When to get up, `ready` minutes before the start. Null with no start time or if that falls before midnight. */
+export function wakeAt(trip: Trip, ready = READY_MINUTES): string | null {
+  const start = minutes(trip.start);
+  if (start === null || start - ready < 0) return null;
+  const m = start - ready;
+  return `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
 }

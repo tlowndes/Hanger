@@ -1,10 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import * as LP from "../core/launchpad";
-import { nextOn } from "../core/ics";
-import { forDay } from "../core/weather";
 import type { Shell, WeatherSettings } from "../platform/desktop";
 import { loadLaunchKit } from "../services/dayService";
-import { dayOf, loadToday, stampOf, type Today } from "../services/homeService";
+import { TripForm } from "./TripForm";
+import { useTrip } from "./useTrip";
 
 const nowMinutes = (): number => {
   const d = new Date();
@@ -15,44 +14,11 @@ export function LaunchPadPage({ shell, weather, back }: { shell: Shell; weather:
   const port = shell.vault;
   const [kit, setKit] = useState<LP.Kit | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [trip, setTrip] = useState<LP.Trip>(LP.noTrip());
   const [ticked, setTicked] = useState<string[]>([]);
   const [lateOnly, setLateOnly] = useState<boolean | null>(null);
   const [now, setNow] = useState(nowMinutes());
-  const [today, setToday] = useState<Today | null>(null);
-  const [typed, setTyped] = useState(false);
-  const [asking, setAsking] = useState(true);
-
-  // Fills the trip from the calendar and forecast, unless you've started typing your own.
-  const fill = useCallback(
-    (t: Today, force = false) => {
-      const d = new Date();
-      const day = dayOf(d);
-      const event = nextOn(t.events, day, stampOf(d));
-      const w = t.forecast ? forDay(t.forecast, day, event ? { start: event.start.slice(11, 16), end: event.end.slice(11, 16) } : undefined) : null;
-      setTrip((cur) => (force || !typed ? LP.tripFrom(event, w) : cur));
-      if (force) setTyped(false);
-    },
-    [typed],
-  );
-  const refresh = useCallback(
-    async (force = false) => {
-      setAsking(true);
-      try {
-        const t = await loadToday(port, shell.home, weather, dayOf(new Date()));
-        setToday(t);
-        fill(t, force);
-      } finally {
-        setAsking(false);
-      }
-    },
-    [port, shell, weather, fill],
-  );
-  useEffect(() => {
-    void refresh(false);
-    // Once on opening, and again if the town changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [port, shell, weather.name]);
+  const t = useTrip(shell, weather, false);
+  const trip = t.trip;
 
   useEffect(() => {
     let live = true;
@@ -75,12 +41,7 @@ export function LaunchPadPage({ shell, weather, back }: { shell: Shell; weather:
   const essentialsOnly = lateOnly ?? timing.late > 0;
   const items = essentialsOnly ? LP.essentials(all) : all;
   const toGo = items.filter((i) => !ticked.includes(i.name)).length;
-  const set = (p: Partial<LP.Trip>) => {
-    setTyped(true);
-    setTrip((t) => ({ ...t, ...p }));
-  };
   const tick = (name: string) => setTicked((t) => (t.includes(name) ? t.filter((n) => n !== name) : [...t, name]));
-  const num = (s: string): number | null => (s.trim() === "" || Number.isNaN(Number(s)) ? null : Number(s));
 
   return (
     <div className="content">
@@ -93,20 +54,7 @@ export function LaunchPadPage({ shell, weather, back }: { shell: Shell; weather:
       </header>
       {error && <div className="banner" role="alert"><span>{error}</span></div>}
 
-      <p className="muted lpsrc">
-        {asking && !today ? "Checking your calendar and the weather…" : [
-          today && today.sources > 0 ? `Calendar: ${today.events.length} event${today.events.length === 1 ? "" : "s"} today${today.failed.length ? `, couldn't read ${today.failed.join(", ")}` : ""}.` : "No calendar links yet. Add them in Flight Deck and they show up here.",
-          today?.forecast ? `Weather for ${weather.name}.` : (today?.weatherNote ?? ""),
-        ].filter(Boolean).join(" ")}
-        {" "}<button className="chip" onClick={() => void refresh(true)} disabled={asking}>{asking ? "Checking…" : "Fill from calendar and weather"}</button>
-      </p>
-      <section className="panel lpform">
-        <label>Event<input value={trip.title} onChange={(e) => set({ title: e.target.value })} placeholder="Gym, interview…" /></label>
-        <label>Starts<input value={trip.start} onChange={(e) => set({ start: e.target.value })} placeholder="09:30" inputMode="numeric" /></label>
-        <label>Hours<input value={trip.hours ?? ""} onChange={(e) => set({ hours: num(e.target.value) })} placeholder="1" inputMode="decimal" /></label>
-        <label>Rain %<input value={trip.rain || ""} onChange={(e) => set({ rain: Math.min(100, Math.max(0, num(e.target.value) ?? 0)) })} placeholder="0" inputMode="numeric" /></label>
-        <label>Low °C<input value={trip.low ?? ""} onChange={(e) => set({ low: num(e.target.value) })} placeholder="9" inputMode="numeric" /></label>
-      </section>
+      <TripForm t={t} weather={weather} word="today" />
 
       {timing.left !== null && (
         <p className={timing.late > 0 ? "lpnote late" : "lpnote"}>

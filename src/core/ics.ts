@@ -188,3 +188,8 @@ function expand(props: Prop[], calendar: string, from: string, to: string, zone:
 export function nextOn(list: CalEvent[], day: string, now: string): CalEvent | null {
   return list.filter((e) => !e.allDay && e.start.startsWith(day) && e.start >= now).sort((a, b) => a.start.localeCompare(b.start))[0] ?? null;
 }
+
+/** The first timed event on `day` ("YYYY-MM-DD"): tomorrow's start, for Night Pad. */
+export function firstOn(list: CalEvent[], day: string): CalEvent | null {
+  return list.filter((e) => !e.allDay && e.start.startsWith(day)).sort((a, b) => a.start.localeCompare(b.start))[0] ?? null;
+}
