@@ -31,6 +31,8 @@ import { JobsPage } from "./JobsPage";
 import { ProjectsPage } from "./ProjectsPage";
 import { MealsPage } from "./MealsPage";
 import { useMeals } from "./useMeals";
+import { ErrandsPage } from "./ErrandsPage";
+import { useErrands } from "./useErrands";
 import { useProjects } from "./useProjects";
 import { useJobs } from "./useJobs";
 import { usePeople } from "./usePeople";
@@ -39,7 +41,7 @@ import { useHeadsUp } from "./useHeadsUp";
 import { ToolsPage } from "./ToolsPage";
 import { useKits } from "./useKits";
 
-const TOOL_PAGES: ModuleId[] = ["didi", "launch", "night", "heads", "waiting", "habits", "plan", "people", "jobs", "projects", "meals", "cool", "refill", "returns", "pass", "seen"];
+const TOOL_PAGES: ModuleId[] = ["didi", "launch", "night", "heads", "waiting", "habits", "plan", "people", "jobs", "projects", "meals", "errands", "cool", "refill", "returns", "pass", "seen"];
 
 export function App() {
   const shell = useMemo(createShell, []);
@@ -103,6 +105,7 @@ function Frame(props: {
   const jobs = useJobs(shell.vault);
   const projects = useProjects(shell.vault);
   const meals = useMeals(shell.vault);
+  const errands = useErrands(shell.vault);
   const heads = useHeadsUp(shell, settings.weather ?? defaultWeather());
   const [focusKey, setFocusKey] = useState(0);
   // Ctrl Shift Space: jump to Tasks with the add box ready.
@@ -179,6 +182,7 @@ function Frame(props: {
         {page === "jobs" && <JobsPage jobs={jobs} back={() => setPage("tools")} />}
         {page === "projects" && <ProjectsPage projects={projects} back={() => setPage("tools")} />}
         {page === "meals" && <MealsPage meals={meals} back={() => setPage("tools")} />}
+        {page === "errands" && <ErrandsPage errands={errands} tasks={tasks} back={() => setPage("tools")} />}
         {page === "didi" && <DidIPage didi={didi} back={() => setPage("tools")} />}
         {page === "settings" && <SettingsPage shell={shell} settings={settings} onChange={props.setSettings} onReload={kitsState.reload} />}
       </main>
