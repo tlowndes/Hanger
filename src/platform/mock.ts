@@ -6,6 +6,8 @@ import { STARTERS } from "../services/kitsService";
 const D = "99 - Meta/Kits";
 
 const DEMO: Record<string, string> = {
+  ["Recipes/Gnocchi.md"]: `---\ntype: recipe\n---\n\n# Gnocchi\n\n## Ingredients\n\n- [ ] 1 onion\n- [x] salt\n- [ ] 400g gnocchi\n\n## Method\n\n1. Cook\n`,
+  ["Recipes/Fajitas.md"]: `---\ntype: recipe\n---\n\n# Fajitas\n\n## Ingredients\n\n- [ ] 1 onion\n- [ ] 400g chicken\n\n## Method\n\n1. Cook\n`,
   ["03 - Projects/Hanger/Hanger.md"]: `---\ntype: idea\nstatus: active\narea: work\n---\n\n# Hanger\n\n## Summary\n\nA Windows hub for the Flight Deck notes.\n\n- [ ] Test the PC build\n\n## Log\n`,
   ["03 - Projects/Portfolio case study/Portfolio case study.md"]: `---\ntype: idea\nstatus: paused\narea: work\n---\n\n# Portfolio case study\n\n## Summary\n\nWrite up the Flight Deck redesign.\n\n## Log\n`,
   ["03 - Projects/Balcony herbs/Balcony herbs.md"]: `---\ntype: idea\nstatus: idea\n---\n\n# Balcony herbs\n\n## Summary\n\nBasil, mint, chives.\n\n## Log\n`,
