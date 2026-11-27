@@ -72,6 +72,7 @@ pub fn run() {
             }
         }))
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_notification::init())
         // Quick capture: bring Hanger forward and tell the page to open the add box.
         .plugin(
             tauri_plugin_global_shortcut::Builder::new()

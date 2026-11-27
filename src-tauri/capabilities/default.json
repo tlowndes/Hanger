@@ -3,5 +3,5 @@
   "identifier": "default",
   "description": "Permissions for Hanger's window. Files are only reached through Hanger's own commands, and only inside the vault's 99 - Meta folder.",
   "windows": ["main", "picker"],
-  "permissions": ["core:default", "dialog:allow-open"]
+  "permissions": ["core:default", "dialog:allow-open", "notification:default"]
 }

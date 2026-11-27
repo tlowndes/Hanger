@@ -22,10 +22,12 @@ import { Overview } from "./Overview";
 import { SettingsPage } from "./SettingsPage";
 import { LaunchPadPage } from "./LaunchPadPage";
 import { NightPadPage } from "./NightPadPage";
+import { HeadsUpPage } from "./HeadsUpPage";
+import { useHeadsUp } from "./useHeadsUp";
 import { ToolsPage } from "./ToolsPage";
 import { useKits } from "./useKits";
 
-const TOOL_PAGES: ModuleId[] = ["didi", "launch", "night", "cool", "refill", "returns", "pass", "seen"];
+const TOOL_PAGES: ModuleId[] = ["didi", "launch", "night", "heads", "cool", "refill", "returns", "pass", "seen"];
 
 export function App() {
   const shell = useMemo(createShell, []);
@@ -84,6 +86,7 @@ function Frame(props: {
   });
   const vinyl = useVinyl(shell, settings.vinyl ?? defaultVinyl());
   const lab = useLab(shell, settings.lab ?? defaultLab());
+  const heads = useHeadsUp(shell, settings.weather ?? defaultWeather());
   const [focusKey, setFocusKey] = useState(0);
   // Ctrl Shift Space: jump to Tasks with the add box ready.
   useEffect(() => {
@@ -151,6 +154,7 @@ function Frame(props: {
         {page === "refill" && <RefillPage day={day} back={() => setPage("tools")} />}
         {page === "launch" && <LaunchPadPage shell={shell} weather={settings.weather ?? defaultWeather()} back={() => setPage("tools")} />}
         {page === "night" && <NightPadPage shell={shell} weather={settings.weather ?? defaultWeather()} back={() => setPage("tools")} />}
+        {page === "heads" && <HeadsUpPage heads={heads} back={() => setPage("tools")} goSettings={() => setPage("settings")} />}
         {page === "didi" && <DidIPage didi={didi} back={() => setPage("tools")} />}
         {page === "settings" && <SettingsPage shell={shell} settings={settings} onChange={props.setSettings} onReload={kitsState.reload} />}
       </main>

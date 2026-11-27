@@ -23,7 +23,7 @@ const TOOLS: Tool[] = [
   { glyph: "#", name: "Pocket Pass", blurb: "Codes you always hunt for", open: "pass" },
   { glyph: "⌖", name: "Last Seen", blurb: "Where you put things", open: "seen" },
   { glyph: "☾", name: "Night Pad", blurb: "Evening pack and charge", open: "night" },
-  { glyph: "◔", name: "Heads Up", blurb: "Leave-by buzzes" },
+  { glyph: "◔", name: "Heads Up", blurb: "Buzzes before events", open: "heads" },
   { glyph: "☀", name: "Daily Brief", blurb: "Needs the server" },
   { glyph: "✉", name: "Inbox", blurb: "Needs the server" },
   { glyph: "⚑", name: "Errands", blurb: "Places and trips" },
