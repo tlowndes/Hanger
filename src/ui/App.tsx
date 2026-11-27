@@ -31,6 +31,7 @@ import { JobsPage } from "./JobsPage";
 import { ProjectsPage } from "./ProjectsPage";
 import { MealsPage } from "./MealsPage";
 import { useMeals } from "./useMeals";
+import { RailPage } from "./RailPage";
 import { ErrandsPage } from "./ErrandsPage";
 import { useErrands } from "./useErrands";
 import { useProjects } from "./useProjects";
@@ -41,7 +42,7 @@ import { useHeadsUp } from "./useHeadsUp";
 import { ToolsPage } from "./ToolsPage";
 import { useKits } from "./useKits";
 
-const TOOL_PAGES: ModuleId[] = ["didi", "launch", "night", "heads", "waiting", "habits", "plan", "people", "jobs", "projects", "meals", "errands", "cool", "refill", "returns", "pass", "seen"];
+const TOOL_PAGES: ModuleId[] = ["didi", "launch", "night", "heads", "waiting", "habits", "plan", "people", "jobs", "projects", "meals", "errands", "rail", "cool", "refill", "returns", "pass", "seen"];
 
 export function App() {
   const shell = useMemo(createShell, []);
@@ -183,6 +184,7 @@ function Frame(props: {
         {page === "projects" && <ProjectsPage projects={projects} back={() => setPage("tools")} />}
         {page === "meals" && <MealsPage meals={meals} back={() => setPage("tools")} />}
         {page === "errands" && <ErrandsPage errands={errands} tasks={tasks} back={() => setPage("tools")} />}
+        {page === "rail" && <RailPage tasks={tasks} back={() => setPage("tools")} />}
         {page === "didi" && <DidIPage didi={didi} back={() => setPage("tools")} />}
         {page === "settings" && <SettingsPage shell={shell} settings={settings} onChange={props.setSettings} onReload={kitsState.reload} />}
       </main>
