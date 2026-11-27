@@ -5,6 +5,7 @@
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-dialog";
+import { isPermissionGranted, requestPermission, sendNotification } from "@tauri-apps/plugin-notification";
 import type { VaultPort } from "../services/ports";
 import type { ShotPort, SortSettings } from "../services/sortingService";
 import { mockShots, mockHome, mockLab, mockVault, mockVinyl } from "./mock";
@@ -94,6 +95,10 @@ export interface Shell {
   captureHotkeysReady(): Promise<boolean | null>;
   /** Runs `cb` with the saved path each time a screenshot is saved. */
   onCaptureSaved(cb: (path: string) => void): Promise<() => void>;
+  /** Asks Windows (or the browser) for permission to buzz. True when allowed. */
+  notifyAllowed(ask: boolean): Promise<boolean>;
+  /** Shows a notification. Does nothing if it isn't allowed. */
+  notify(title: string, body: string): Promise<void>;
 }
 
 const inTauri = (): boolean => {
@@ -159,6 +164,10 @@ export function createShell(): Shell {
       captureRegion: () => invoke<void>("capture_region_start"),
       captureHotkeysReady: () => invoke<boolean>("capture_hotkeys_ready"),
       onCaptureSaved: (cb) => listen<{ path: string; copied: boolean }>("capture-saved", (e) => cb(e.payload.path)),
+      notifyAllowed: async (ask) => (await isPermissionGranted()) || (ask && (await requestPermission()) === "granted"),
+      notify: async (title, body) => {
+        if (await isPermissionGranted()) sendNotification({ title, body });
+      },
     };
   }
   let settings: AppSettings = { vault: "demo", sorting: defaultSorting(), vinyl: defaultVinyl(), lab: { address: "http://homepage.local:3000", separate: false }, weather: { place: "Manchester", name: "Manchester, United Kingdom", lat: 53.48, lon: -2.24 } };
@@ -185,5 +194,12 @@ export function createShell(): Shell {
     },
     captureHotkeysReady: async () => null,
     onCaptureSaved: async () => () => undefined,
+    notifyAllowed: async (ask) => {
+      if (typeof Notification === "undefined") return false;
+      return Notification.permission === "granted" || (ask && (await Notification.requestPermission()) === "granted");
+    },
+    notify: async (title, body) => {
+      if (typeof Notification !== "undefined" && Notification.permission === "granted") new Notification(title, { body });
+    },
   };
 }
