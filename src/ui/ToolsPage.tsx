@@ -33,7 +33,7 @@ const TOOLS: Tool[] = [
   { glyph: "⧗", name: "Waiting Mode", blurb: "Quick task or a breather", open: "waiting" },
   { glyph: "◐", name: "Sensory Dial", blurb: "How loud the day is" },
   { glyph: "☑", name: "Plan today", blurb: "Plan the day" },
-  { glyph: "✿", name: "Habits", blurb: "Today's habits" },
+  { glyph: "✿", name: "Habits", blurb: "Today's habits", open: "habits" },
   { glyph: "▣", name: "Jobs", blurb: "Applications and follow-ups" },
   { glyph: "☺", name: "People", blurb: "Birthdays and who to see" },
 ];
