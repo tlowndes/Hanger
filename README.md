@@ -18,7 +18,8 @@ Hanger reads and writes the same Obsidian notes as Flight Deck (in `99 - Meta`),
 - **Heads Up**: a Windows notification before each timed event on your calendar (10 minutes before, or three warnings at 10, 5 and 1), with quiet hours from 21:00 to 07:00 and a test button. The choice is kept on this PC. It only buzzes while Hanger is running, and a minimised window is fine. It uses the event start, as Hanger has no travel times.
 - **Waiting Mode**: stuck in a queue? One quick task from your Quick Task note (tagged `#quick` or `⏱ 5m` or less) to tick off, with Shuffle, or a minute of 4-in, 6-out breathing.
 - **Habits**: today's list from `99 - Meta/Habits.md`, shared with Flight Deck. Tick habits, count water and other counters up and down, see streaks (one missed day a week is forgiven) and the week at a glance, add a habit with its days, and pause or resume one. Counter set-up and renaming stay in Flight Deck or the note.
-- **Tools**: the Hangar tools page. **Did I?**, **Launch Pad**, **Night Pad**, **Heads Up**, **Waiting Mode**, **Habits**, **Cool-off**, **Refill**, **Return Radar**, **Pocket Pass** and **Last Seen** are built; the rest show as "soon". Price tracking in Cool-off stays on the phone for now.
+- **Plan today**: today's calendar events and timed tasks on one timeline, how much free time is left before 18:00, and "Give it a time" for tasks due today. A time is written as `11:00 - 11:45` at the start of the task line, which Obsidian's Day Planner reads too.
+- **Tools**: the Hangar tools page. **Did I?**, **Launch Pad**, **Night Pad**, **Heads Up**, **Waiting Mode**, **Habits**, **Plan today**, **Cool-off**, **Refill**, **Return Radar**, **Pocket Pass** and **Last Seen** are built; the rest show as "soon". Price tracking in Cool-off stays on the phone for now.
 
 Next: Capture, Screenshot Sorting, Overview widgets, Vinyl Pi, Lab, more Tools. See the build plan.
 

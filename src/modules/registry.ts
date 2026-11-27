@@ -2,7 +2,7 @@
  * Hanger's modules. Each one gets a tile on the rail. A module is a page plus the colour it keeps; the shared
  * look (graphite surfaces, soft shapes, one accent per module) comes from styles.css.
  */
-export type ModuleId = "overview" | "tasks" | "sorting" | "vinyl" | "lab" | "tools" | "kits" | "didi" | "launch" | "night" | "heads" | "waiting" | "habits" | "cool" | "refill" | "returns" | "pass" | "seen" | "settings";
+export type ModuleId = "overview" | "tasks" | "sorting" | "vinyl" | "lab" | "tools" | "kits" | "didi" | "launch" | "night" | "heads" | "waiting" | "habits" | "plan" | "cool" | "refill" | "returns" | "pass" | "seen" | "settings";
 
 export interface ModuleDef {
   id: ModuleId;
@@ -32,6 +32,7 @@ export const TOOL_MODULES: ModuleDef[] = [
   { id: "heads", name: "Heads Up", glyph: "◔", accent: "var(--heads)", blurb: "Buzzes before events" },
   { id: "waiting", name: "Waiting Mode", glyph: "⧗", accent: "var(--waiting)", blurb: "Something better than scrolling" },
   { id: "habits", name: "Habits", glyph: "✿", accent: "var(--habits)", blurb: "Today's habits and streaks" },
+  { id: "plan", name: "Plan today", glyph: "☑", accent: "var(--plan)", blurb: "Timeline and time-boxing" },
   { id: "cool", name: "Cool-off", glyph: "❄", accent: "var(--cool)", blurb: "Wait before impulse buys" },
   { id: "refill", name: "Refill", glyph: "✚", accent: "var(--refill)", blurb: "Count meds down" },
   { id: "returns", name: "Return Radar", glyph: "↩", accent: "var(--returns)", blurb: "Return-by dates" },

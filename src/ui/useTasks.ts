@@ -19,6 +19,8 @@ export interface TasksState {
   tick(task: T.Task): Promise<void>;
   remove(task: T.Task): Promise<void>;
   setDue(task: T.Task, day: string | null): Promise<void>;
+  /** Replaces the task's whole line (to give it a time, say). */
+  setLine(task: T.Task, line: string): Promise<void>;
   runUndo(): Promise<void>;
   dismissUndo(): void;
 }
@@ -90,6 +92,10 @@ export function useTasks(port: VaultPort): TasksState {
     remove: (task) => run(async () => {
       const r = await S.remove(port, task);
       return { label: `Removed “${task.text}”`, run: () => S.undoRemove(port, task, r) };
+    }),
+    setLine: (task, line) => run(async () => {
+      await S.putLine(port, task.raw, line);
+      return { label: `Changed “${task.text}”`, run: () => S.putLine(port, line, task.raw) };
     }),
     setDue: (task, day) => run(async () => {
       const updated = await S.setDue(port, task, day);
