@@ -35,7 +35,7 @@ const TOOLS: Tool[] = [
   { glyph: "☑", name: "Plan today", blurb: "Timeline and time-boxing", open: "plan" },
   { glyph: "✿", name: "Habits", blurb: "Today's habits", open: "habits" },
   { glyph: "▣", name: "Jobs", blurb: "Applications and follow-ups" },
-  { glyph: "☺", name: "People", blurb: "Birthdays and who to see" },
+  { glyph: "☺", name: "People", blurb: "Birthdays and who to see", open: "people" },
 ];
 
 export function ToolsPage({ kits, didi, day, go }: { kits: KitsState; didi: DidIState; day: DayState; go(p: ModuleId): void }) {

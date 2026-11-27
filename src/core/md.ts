@@ -63,3 +63,33 @@ export const parseDay = (s: string): Date => {
 export const addDays = (d: Date, n: number): Date => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n, d.getHours(), d.getMinutes());
 /** "£249", or "£249.50" when there are pence. */
 export const money = (p: number): string => (Number.isInteger(p) ? `£${p}` : `£${p.toFixed(2)}`);
+
+/** Sets `key: value` in the frontmatter, adding the key (or the whole block) if missing. */
+export function fmSet(lines: string[], key: string, value: string): void {
+  const end = fmEnd(lines);
+  if (end < 0) {
+    lines.unshift("---", `${key}: ${value}`, "---", "");
+    return;
+  }
+  const re = new RegExp(`^${key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}:`);
+  for (let i = 1; i < end; i++)
+    if (re.test(lines[i])) {
+      lines[i] = `${key}: ${value}`;
+      return;
+    }
+  lines.splice(end, 0, `${key}: ${value}`);
+}
+
+const norm = (s: string): string => s.replace(/[^\p{L}\p{N}]/gu, "").toLowerCase();
+
+/** Index of the `## name` heading (ignoring emoji and case), or -1. */
+export const headingIndex = (lines: string[], name: string): number => lines.findIndex((l) => l.startsWith("## ") && norm(l.slice(3)) === norm(name));
+
+/** Lines of the `## name` section as [first, end): just after the heading to just before the next `## `. Null if there is none. */
+export function sectionRange(lines: string[], name: string): [number, number] | null {
+  const h = headingIndex(lines, name);
+  if (h < 0) return null;
+  let e = h + 1;
+  while (e < lines.length && !lines[e].startsWith("## ")) e++;
+  return [h + 1, e];
+}

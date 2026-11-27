@@ -19,13 +19,14 @@ Hanger reads and writes the same Obsidian notes as Flight Deck (in `99 - Meta`),
 - **Waiting Mode**: stuck in a queue? One quick task from your Quick Task note (tagged `#quick` or `⏱ 5m` or less) to tick off, with Shuffle, or a minute of 4-in, 6-out breathing.
 - **Habits**: today's list from `99 - Meta/Habits.md`, shared with Flight Deck. Tick habits, count water and other counters up and down, see streaks (one missed day a week is forgiven) and the week at a glance, add a habit with its days, and pause or resume one. Counter set-up and renaming stay in Flight Deck or the note.
 - **Plan today**: today's calendar events and timed tasks on one timeline, how much free time is left before 18:00, and "Give it a time" for tasks due today. A time is written as `11:00 - 11:45` at the start of the task line, which Obsidian's Day Planner reads too.
-- **Tools**: the Hangar tools page. **Did I?**, **Launch Pad**, **Night Pad**, **Heads Up**, **Waiting Mode**, **Habits**, **Plan today**, **Cool-off**, **Refill**, **Return Radar**, **Pocket Pass** and **Last Seen** are built; the rest show as "soon". Price tracking in Cool-off stays on the phone for now.
+- **People**: birthdays in the next two weeks, people you haven't spoken to in a while, gift ideas and notes, from one note per person in your People folder (`birthday: 1958-11-21` or `--11-21`, `keep_in_touch: 21`). Add someone, log "spoke today", add gift ideas and notes. Flight Deck's week-before gift task stays on the phone.
+- **Tools**: the Hangar tools page. **Did I?**, **Launch Pad**, **Night Pad**, **Heads Up**, **Waiting Mode**, **Habits**, **Plan today**, **People**, **Cool-off**, **Refill**, **Return Radar**, **Pocket Pass** and **Last Seen** are built; the rest show as "soon". Price tracking in Cool-off stays on the phone for now.
 
 Next: Capture, Screenshot Sorting, Overview widgets, Vinyl Pi, Lab, more Tools. See the build plan.
 
 ## Stack
 
-Tauri 2, React 19, TypeScript, Rust. Vault access goes through a `VaultPort` (Tauri commands on desktop, in-memory mock in the browser and tests). Writes are atomic and limited to the vault's `99 - Meta` folder.
+Tauri 2, React 19, TypeScript, Rust. Vault access goes through a `VaultPort` (Tauri commands on desktop, in-memory mock in the browser and tests). Writes are atomic and limited to the vault's `99 - Meta` folder, the Quick Task note, and the People, Projects (`NN - Projects`), Job Hunt applications and Recipes folders. Nothing else in the vault can be read or written.
 
 ## Run
 

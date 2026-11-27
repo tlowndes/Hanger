@@ -26,4 +26,13 @@ export class MemoryVault implements VaultPort {
   async exists(path: string) {
     return this.files.has(path);
   }
+  async dirs(dir: string) {
+    const prefix = dir.replace(/\/+$/, "") + "/";
+    return [...new Set([...this.files.keys()].filter((k) => k.startsWith(prefix) && k.slice(prefix.length).includes("/")).map((k) => k.slice(prefix.length).split("/")[0]))].sort();
+  }
+  async findFolder(name: "People" | "Recipes") {
+    const keys = [...this.files.keys()];
+    if (keys.some((k) => k.startsWith(`${name}/`))) return name;
+    return keys.map((k) => k.split("/").slice(0, 2).join("/")).find((k) => k.split("/")[1] === name) ?? null;
+  }
 }

@@ -132,6 +132,8 @@ pub fn run() {
             lab::lab_services,
             lab::lab_status,
             vault::vault_list,
+            vault::vault_dirs,
+            vault::vault_find,
             vault::vault_read,
             vault::vault_write,
             vault::vault_remove,
