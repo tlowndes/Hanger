@@ -16,7 +16,8 @@ Hanger reads and writes the same Obsidian notes as Flight Deck (in `99 - Meta`),
 - **Launch Pad**: the leave-the-house pass. It builds a take list from the `Launch Pad kit` note (the same one Flight Deck uses): Always items plus rain, cold, event and long-trip rules. It fills itself from your calendar and the weather: the calendar links Flight Deck saved in the vault (read-only, https only) and a forecast for the town set in Settings (Open-Meteo, no key). Anything can be typed over.
 - **Night Pad**: the evening before. It reads tomorrow's first event and forecast (same calendar and weather as Launch Pad) and lists what to charge, pack and lay out, from the Charge and Wear sections of the Launch Pad kit note, with the time to set your alarm for.
 - **Heads Up**: a Windows notification before each timed event on your calendar (10 minutes before, or three warnings at 10, 5 and 1), with quiet hours from 21:00 to 07:00 and a test button. The choice is kept on this PC. It only buzzes while Hanger is running, and a minimised window is fine. It uses the event start, as Hanger has no travel times.
-- **Tools**: the Hangar tools page. **Did I?**, **Launch Pad**, **Night Pad**, **Heads Up**, **Cool-off**, **Refill**, **Return Radar**, **Pocket Pass** and **Last Seen** are built; the rest show as "soon". Price tracking in Cool-off stays on the phone for now.
+- **Waiting Mode**: stuck in a queue? One quick task from your Quick Task note (tagged `#quick` or `⏱ 5m` or less) to tick off, with Shuffle, or a minute of 4-in, 6-out breathing.
+- **Tools**: the Hangar tools page. **Did I?**, **Launch Pad**, **Night Pad**, **Heads Up**, **Waiting Mode**, **Cool-off**, **Refill**, **Return Radar**, **Pocket Pass** and **Last Seen** are built; the rest show as "soon". Price tracking in Cool-off stays on the phone for now.
 
 Next: Capture, Screenshot Sorting, Overview widgets, Vinyl Pi, Lab, more Tools. See the build plan.
 

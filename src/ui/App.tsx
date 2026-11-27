@@ -23,11 +23,12 @@ import { SettingsPage } from "./SettingsPage";
 import { LaunchPadPage } from "./LaunchPadPage";
 import { NightPadPage } from "./NightPadPage";
 import { HeadsUpPage } from "./HeadsUpPage";
+import { WaitingPage } from "./WaitingPage";
 import { useHeadsUp } from "./useHeadsUp";
 import { ToolsPage } from "./ToolsPage";
 import { useKits } from "./useKits";
 
-const TOOL_PAGES: ModuleId[] = ["didi", "launch", "night", "heads", "cool", "refill", "returns", "pass", "seen"];
+const TOOL_PAGES: ModuleId[] = ["didi", "launch", "night", "heads", "waiting", "cool", "refill", "returns", "pass", "seen"];
 
 export function App() {
   const shell = useMemo(createShell, []);
@@ -155,6 +156,7 @@ function Frame(props: {
         {page === "launch" && <LaunchPadPage shell={shell} weather={settings.weather ?? defaultWeather()} back={() => setPage("tools")} />}
         {page === "night" && <NightPadPage shell={shell} weather={settings.weather ?? defaultWeather()} back={() => setPage("tools")} />}
         {page === "heads" && <HeadsUpPage heads={heads} back={() => setPage("tools")} goSettings={() => setPage("settings")} />}
+        {page === "waiting" && <WaitingPage tasks={tasks} back={() => setPage("tools")} />}
         {page === "didi" && <DidIPage didi={didi} back={() => setPage("tools")} />}
         {page === "settings" && <SettingsPage shell={shell} settings={settings} onChange={props.setSettings} onReload={kitsState.reload} />}
       </main>
