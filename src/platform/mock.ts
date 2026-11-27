@@ -173,14 +173,16 @@ export function mockHome(): import("./desktop").HomePort {
   const day = new Date();
   const ymd = (d: Date): string => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   const stamp = ymd(day).replace(/-/g, "");
+  const next = new Date(day.getTime() + 86_400_000);
+  const nextStamp = ymd(next).replace(/-/g, "");
   // A gym session an hour from now (or 23:30 late at night), so the preview always has something coming up.
   const hh = String(Math.min(23, day.getHours() + 1)).padStart(2, "0");
   return {
     weatherFind: async (place) => JSON.stringify({ results: [{ name: place || "Manchester", country: "United Kingdom", latitude: 53.48, longitude: -2.24 }] }),
     weatherForecast: async () => {
-      const time = Array.from({ length: 24 }, (_, h) => `${ymd(day)}T${String(h).padStart(2, "0")}:00`);
-      return JSON.stringify({ hourly: { time, precipitation_probability: time.map((_, h) => (h >= 17 && h <= 20 ? 70 : 10)), temperature_2m: time.map((_, h) => 4 + Math.min(h, 24 - h) / 2) }, daily: { time: [ymd(day)], temperature_2m_min: [4] } });
+      const time = [day, next].flatMap((d) => Array.from({ length: 24 }, (_, h) => `${ymd(d)}T${String(h).padStart(2, "0")}:00`));
+      return JSON.stringify({ hourly: { time, precipitation_probability: time.map((_, i) => (i % 24 >= 8 && i % 24 <= 11 ? 65 : 10)), temperature_2m: time.map((_, h) => 4 + Math.min(h, 24 - h) / 2) }, daily: { time: [ymd(day), ymd(next)], temperature_2m_min: [4, 3] } });
     },
-    calendarFetch: async () => `BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nDTSTART:${stamp}T${hh}3000\r\nDTEND:${stamp}T${hh}5959\r\nSUMMARY:Gym\r\nEND:VEVENT\r\nEND:VCALENDAR`,
+    calendarFetch: async () => `BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nDTSTART:${stamp}T${hh}3000\r\nDTEND:${stamp}T${hh}5959\r\nSUMMARY:Gym\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nDTSTART:${nextStamp}T093000\r\nDTEND:${nextStamp}T113000\r\nSUMMARY:Interview at Studio North\r\nEND:VEVENT\r\nEND:VCALENDAR`,
   };
 }

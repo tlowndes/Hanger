@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { tripFrom, essentials, itemsFor, minutes, noTrip, parse, rule, STARTER, timing, words, type Trip } from "../src/core/launchpad";
+import { nightItems, wakeAt, tripFrom, essentials, itemsFor, minutes, noTrip, parse, rule, STARTER, timing, words, type Trip } from "../src/core/launchpad";
 
 const trip = (p: Partial<Trip> = {}): Trip => ({ ...noTrip(), title: "Gym", start: "09:30", hours: 1, low: 9, ...p });
 
@@ -8,12 +8,13 @@ describe("launch pad", () => {
   it("reads the starter kit", () => {
     expect(kit.always.map((i) => i.name)).toEqual(["Keys", "Wallet", "Phone", "Headphones"]);
     expect(kit.always[0].emoji).toBe("🔑");
-    expect(kit.rules).toHaveLength(5);
+    expect(kit.rules.filter((r) => r.group === "bag")).toHaveLength(5);
     expect(kit.rules.find((r) => r.kind === "event" && r.arg === "gym")!.items.map((i) => i.name)).toEqual(["Gym bag", "Towel"]);
   });
-  it("leaves Charge and Wear out of the bag", () => {
-    expect(kit.always.map((i) => i.name)).not.toContain("Waterproof");
-    expect(kit.rules.every((r) => r.items.every((i) => i.name !== "Waterproof"))).toBe(true);
+  it("keeps Charge and Wear out of the morning bag", () => {
+    expect(kit.charge.map((i) => i.name)).toEqual(["Phone", "Headphones"]);
+    expect(kit.rules.filter((r) => r.group === "wear").map((r) => r.kind)).toEqual(["rain", "cold"]);
+    expect(itemsFor(kit, trip({ rain: 90, low: 1 })).map((i) => i.name)).not.toContain("Waterproof");
   });
   it("rules add items for the day with a reason", () => {
     const items = itemsFor(kit, trip({ rain: 80 }));
@@ -44,5 +45,19 @@ describe("launch pad", () => {
     expect(tripFrom(null, { rain: 20, low: null })).toEqual({ title: "", start: "", hours: null, rain: 20, low: null });
     expect(tripFrom({ title: "Overnight", start: "2026-11-27T22:00", end: "2026-11-28T06:00" }, null).hours).toBeNull();
     expect(tripFrom(null, null)).toEqual(noTrip());
+  });
+  it("night pad lists charge, bag and wear for tomorrow", () => {
+    const night = nightItems(kit, trip({ rain: 70 }));
+    expect(night.map((n) => n.item.name)).toEqual(["Phone", "Headphones", "Umbrella", "Gym bag", "Towel", "Waterproof"]);
+    expect(night.at(-1)!.group).toBe("wear");
+    expect(night.filter((n) => n.group === "charge")).toHaveLength(2);
+    // Nothing planned tomorrow: only the Charge group.
+    expect(nightItems(kit, { ...noTrip(), rain: 90, low: 0 }).map((n) => n.group)).toEqual(["charge", "charge"]);
+  });
+  it("works out when to get up", () => {
+    expect(wakeAt(trip())).toBe("08:30");
+    expect(wakeAt(trip({ start: "00:30" }))).toBeNull();
+    expect(wakeAt(trip({ start: "" }))).toBeNull();
+    expect(wakeAt(trip({ start: "07:15" }), 45)).toBe("06:30");
   });
 });

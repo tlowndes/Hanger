@@ -14,7 +14,8 @@ Hanger reads and writes the same Obsidian notes as Flight Deck (in `99 - Meta`),
 - **Lab**: your Homepage dashboard (gethomepage) read from its own address (set it in Settings, like `http://192.168.1.20:3000`): every group and service with Homepage's own up or down check, plus a Lab widget on Overview. Read-only, plain http to one host. Built in / Separate works here too.
 - **Sorting**: reads new screenshots on this PC (Windows OCR), names them by what is in them and files them by topic. Off until you switch it on, never deletes, every move has Undo. Older screenshots always wait for a look.
 - **Launch Pad**: the leave-the-house pass. It builds a take list from the `Launch Pad kit` note (the same one Flight Deck uses): Always items plus rain, cold, event and long-trip rules. It fills itself from your calendar and the weather: the calendar links Flight Deck saved in the vault (read-only, https only) and a forecast for the town set in Settings (Open-Meteo, no key). Anything can be typed over.
-- **Tools**: the Hangar tools page. **Did I?**, **Launch Pad**, **Cool-off**, **Refill**, **Return Radar**, **Pocket Pass** and **Last Seen** are built; the rest show as "soon". Price tracking in Cool-off stays on the phone for now.
+- **Night Pad**: the evening before. It reads tomorrow's first event and forecast (same calendar and weather as Launch Pad) and lists what to charge, pack and lay out, from the Charge and Wear sections of the Launch Pad kit note, with the time to set your alarm for.
+- **Tools**: the Hangar tools page. **Did I?**, **Launch Pad**, **Night Pad**, **Cool-off**, **Refill**, **Return Radar**, **Pocket Pass** and **Last Seen** are built; the rest show as "soon". Price tracking in Cool-off stays on the phone for now.
 
 Next: Capture, Screenshot Sorting, Overview widgets, Vinyl Pi, Lab, more Tools. See the build plan.
 
