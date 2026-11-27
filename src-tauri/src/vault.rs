@@ -118,8 +118,9 @@ pub fn vault_dirs(state: State<'_, AppState>, path: String) -> Result<Vec<String
     Ok(names)
 }
 
-/// Where a named folder (`People`, `Recipes`) is: at the top of the vault, else one folder down. Null if nowhere.
-/// Only those two names are looked for, so this can't be used to browse the vault.
+/// Where a named folder (`People`, `Recipes`) is: at the top of the vault, else one folder down; or, for `Projects`,
+/// the top-level `NN - Projects` folder. Null if nowhere. Only those names are looked for, so this can't be used to
+/// browse the vault.
 #[tauri::command]
 pub fn vault_find(state: State<'_, AppState>, name: String) -> Result<Option<String>, String> {
     let root = vault_root(&state)?;
@@ -128,7 +129,7 @@ pub fn vault_find(state: State<'_, AppState>, name: String) -> Result<Option<Str
 
 pub fn find_folder(root: &str, name: &str) -> Result<Option<String>, String> {
     let lower = name.to_lowercase();
-    if lower != "people" && lower != "recipes" {
+    if lower != "people" && lower != "recipes" && lower != "projects" {
         return Err(format!("Hanger can't look for '{name}'."));
     }
     if root.trim().is_empty() {
@@ -139,6 +140,9 @@ pub fn find_folder(root: &str, name: &str) -> Result<Option<String>, String> {
         Err(e) => return Err(e.to_string()),
     };
     dirs.sort();
+    if lower == "projects" {
+        return Ok(dirs.iter().find(|d| numbered_projects(&d.to_lowercase())).cloned());
+    }
     if let Some(d) = dirs.iter().find(|d| d.to_lowercase() == lower) {
         return Ok(Some(d.clone()));
     }
@@ -224,7 +228,7 @@ mod tests {
     }
 
     #[test]
-    fn finds_only_people_and_recipes() {
+    fn finds_only_people_recipes_and_projects() {
         let root = std::env::temp_dir().join(format!("hanger-find-{}", std::process::id()));
         fs::create_dir_all(root.join("02 - Area").join("People")).unwrap();
         fs::create_dir_all(root.join("Recipes")).unwrap();
@@ -232,6 +236,8 @@ mod tests {
         assert_eq!(find_folder(&r, "People").unwrap(), Some("02 - Area/People".to_string()));
         assert_eq!(find_folder(&r, "recipes").unwrap(), Some("Recipes".to_string()));
         assert!(find_folder(&r, "Journal").is_err());
+        fs::create_dir_all(root.join("03 - Projects")).unwrap();
+        assert_eq!(find_folder(&r, "Projects").unwrap(), Some("03 - Projects".to_string()));
         let _ = fs::remove_dir_all(root);
     }
 
