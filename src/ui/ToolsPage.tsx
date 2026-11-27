@@ -29,7 +29,7 @@ const TOOLS: Tool[] = [
   { glyph: "⚑", name: "Errands", blurb: "Places and trips" },
   { glyph: "▤", name: "Ticket Rail", blurb: "Printed tickets" },
   { glyph: "✦", name: "Projects", blurb: "Active projects and next steps", open: "projects" },
-  { glyph: "◔", name: "Meals", blurb: "Meal plan" },
+  { glyph: "◔", name: "Meals", blurb: "Meal plan and shopping", open: "meals" },
   { glyph: "⧗", name: "Waiting Mode", blurb: "Quick task or a breather", open: "waiting" },
   { glyph: "◐", name: "Sensory Dial", blurb: "How loud the day is" },
   { glyph: "☑", name: "Plan today", blurb: "Timeline and time-boxing", open: "plan" },
