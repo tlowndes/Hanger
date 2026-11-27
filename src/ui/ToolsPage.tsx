@@ -28,7 +28,7 @@ const TOOLS: Tool[] = [
   { glyph: "✉", name: "Inbox", blurb: "Needs the server" },
   { glyph: "⚑", name: "Errands", blurb: "Places and trips" },
   { glyph: "▤", name: "Ticket Rail", blurb: "Printed tickets" },
-  { glyph: "✦", name: "Projects", blurb: "Active projects" },
+  { glyph: "✦", name: "Projects", blurb: "Active projects and next steps", open: "projects" },
   { glyph: "◔", name: "Meals", blurb: "Meal plan" },
   { glyph: "⧗", name: "Waiting Mode", blurb: "Quick task or a breather", open: "waiting" },
   { glyph: "◐", name: "Sensory Dial", blurb: "How loud the day is" },

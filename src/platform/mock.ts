@@ -6,6 +6,9 @@ import { STARTERS } from "../services/kitsService";
 const D = "99 - Meta/Kits";
 
 const DEMO: Record<string, string> = {
+  ["03 - Projects/Hanger/Hanger.md"]: `---\ntype: idea\nstatus: active\narea: work\n---\n\n# Hanger\n\n## Summary\n\nA Windows hub for the Flight Deck notes.\n\n- [ ] Test the PC build\n\n## Log\n`,
+  ["03 - Projects/Portfolio case study/Portfolio case study.md"]: `---\ntype: idea\nstatus: paused\narea: work\n---\n\n# Portfolio case study\n\n## Summary\n\nWrite up the Flight Deck redesign.\n\n## Log\n`,
+  ["03 - Projects/Balcony herbs/Balcony herbs.md"]: `---\ntype: idea\nstatus: idea\n---\n\n# Balcony herbs\n\n## Summary\n\nBasil, mint, chives.\n\n## Log\n`,
   ["02 - Area/Work/Job Hunt/Applications/Monzo - Product Designer.md"]: `---\ntype: application\ncompany: Monzo\nrole: Product Designer\nstatus: Interview\napplied: 2026-11-10\nfollow_up: 2026-11-30\n---\n\n# Monzo\n`,
   ["02 - Area/Work/Job Hunt/Applications/Wise - Designer.md"]: `---\ntype: application\ncompany: Wise\nrole: UX Designer\nstatus: Applied\napplied: 2026-11-20\nfollow_up: 2026-11-25\n---\n\n# Wise\n`,
   ["People/Mum.md"]: `---\ntype: person\nbirthday: 1958-11-30\nkeep_in_touch: 14\nlast_spoke: 2026-11-05\n---\n\n## Gift ideas\n- kneeler (said 3 Nov)\n\n## Notes\n- Likes lilies\n`,
@@ -114,6 +117,7 @@ export function mockVault(): VaultPort {
     },
     async findFolder(name) {
       const keys = [...files.keys()];
+      if (name === "Projects") return keys.map((k) => k.split("/")[0]).find((k) => /^\d+\s*-\s*projects$/i.test(k)) ?? null;
       return keys.some((k) => k.startsWith(`${name}/`)) ? name : (keys.map((k) => k.split("/").slice(0, 2).join("/")).find((k) => k.split("/")[1]?.toLowerCase() === name.toLowerCase()) ?? null);
     },
   };
