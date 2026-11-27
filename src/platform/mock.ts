@@ -6,6 +6,8 @@ import { STARTERS } from "../services/kitsService";
 const D = "99 - Meta/Kits";
 
 const DEMO: Record<string, string> = {
+  ["People/Mum.md"]: `---\ntype: person\nbirthday: 1958-11-30\nkeep_in_touch: 14\nlast_spoke: 2026-11-05\n---\n\n## Gift ideas\n- kneeler (said 3 Nov)\n\n## Notes\n- Likes lilies\n`,
+  ["People/Jamie.md"]: `---\ntype: person\nbirthday: --03-14\nkeep_in_touch: 30\nlast_spoke: 2026-09-20\n---\n\n## Gift ideas\n\n## Notes\n`,
   [`${D}/Pocket.md`]: STARTERS.Pocket,
   ["99 - Meta/capture-config.json"]: JSON.stringify({ calendars: [{ id: "demo", name: "Demo", url: "https://calendar.example.com/demo.ics", colour: "#7aa2ff", enabled: true }] }),
   [`${D}/Backpack.md`]: `# 🎒 Backpack
@@ -103,6 +105,14 @@ export function mockVault(): VaultPort {
     },
     async exists(path) {
       return files.has(path);
+    },
+    async dirs(dir) {
+      const prefix = dir.replace(/\/+$/, "") + "/";
+      return [...new Set([...files.keys()].filter((k) => k.startsWith(prefix) && k.slice(prefix.length).includes("/")).map((k) => k.slice(prefix.length).split("/")[0]))];
+    },
+    async findFolder(name) {
+      const keys = [...files.keys()];
+      return keys.some((k) => k.startsWith(`${name}/`)) ? name : (keys.map((k) => k.split("/").slice(0, 2).join("/")).find((k) => k.split("/")[1]?.toLowerCase() === name.toLowerCase()) ?? null);
     },
   };
 }

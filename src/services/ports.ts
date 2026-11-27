@@ -7,6 +7,10 @@ export interface VaultPort {
   write(path: string, text: string): Promise<void>;
   remove(path: string): Promise<void>;
   exists(path: string): Promise<boolean>;
+  /** Folder names directly inside `dir`. Only works inside the folders Hanger is allowed (People, Projects, Jobs, Recipes). */
+  dirs(dir: string): Promise<string[]>;
+  /** Where the People or Recipes folder is: at the top of the vault or one folder down. Null if there isn't one. */
+  findFolder(name: "People" | "Recipes"): Promise<string | null>;
 }
 
 export const join = (dir: string, name: string): string => `${dir.replace(/\/+$/, "")}/${name}`;

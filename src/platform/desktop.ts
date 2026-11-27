@@ -115,6 +115,8 @@ const tauriVault: VaultPort = {
   write: (path, text) => invoke<void>("vault_write", { path, text }),
   remove: (path) => invoke<void>("vault_remove", { path }),
   exists: (path) => invoke<boolean>("vault_exists", { path }),
+  dirs: (dir) => invoke<string[]>("vault_dirs", { path: dir }),
+  findFolder: (name) => invoke<string | null>("vault_find", { name }),
 };
 
 const tauriShots: ShotPort = {
