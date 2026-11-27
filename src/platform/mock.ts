@@ -6,6 +6,8 @@ import { STARTERS } from "../services/kitsService";
 const D = "99 - Meta/Kits";
 
 const DEMO: Record<string, string> = {
+  ["02 - Area/Work/Job Hunt/Applications/Monzo - Product Designer.md"]: `---\ntype: application\ncompany: Monzo\nrole: Product Designer\nstatus: Interview\napplied: 2026-11-10\nfollow_up: 2026-11-30\n---\n\n# Monzo\n`,
+  ["02 - Area/Work/Job Hunt/Applications/Wise - Designer.md"]: `---\ntype: application\ncompany: Wise\nrole: UX Designer\nstatus: Applied\napplied: 2026-11-20\nfollow_up: 2026-11-25\n---\n\n# Wise\n`,
   ["People/Mum.md"]: `---\ntype: person\nbirthday: 1958-11-30\nkeep_in_touch: 14\nlast_spoke: 2026-11-05\n---\n\n## Gift ideas\n- kneeler (said 3 Nov)\n\n## Notes\n- Likes lilies\n`,
   ["People/Jamie.md"]: `---\ntype: person\nbirthday: --03-14\nkeep_in_touch: 30\nlast_spoke: 2026-09-20\n---\n\n## Gift ideas\n\n## Notes\n`,
   [`${D}/Pocket.md`]: STARTERS.Pocket,
